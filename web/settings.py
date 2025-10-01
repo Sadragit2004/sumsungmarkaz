@@ -36,10 +36,14 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.humanize',
     'django.contrib.staticfiles',
     'django_render_partial',
     'ckeditor',
     'ckeditor_uploader',
+    'apps.main.apps.MainConfig',
+    'apps.user.apps.UserConfig',
+    'apps.product.apps.ProductConfig',
 ]
 
 MIDDLEWARE = [
@@ -148,6 +152,7 @@ CKEDITOR_5_CONFIGS = {
 }
 
 
+AUTH_USER_MODEL = 'user.CustomUser'
 
 
 

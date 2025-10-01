@@ -39,14 +39,14 @@
 
   </head>
 
-<body class="tt-magic-cursor">
+<body class="max-w-[1700px] mx-auto">
 
   {% include "partials/header.html" %}
-
+    {% include "partials/messages.html" %}
 
 
     {% block content %}
-{% csrf_token %}
+
 
     {% endblock content %}
 

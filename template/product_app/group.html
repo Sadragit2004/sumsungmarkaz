@@ -1,0 +1,25 @@
+<div class="container mx-auto px-4 mt-10">
+  <h2 class="text-2xl font-bold text-center mb-8">دسته‌بندی‌ها بر اساس بیشترین محصول</h2>
+
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+    {% for category in categories %}
+      <a href="" class="flex flex-col justify-center items-center group">
+        <div class="size-28 md:size-32 p-3 flex justify-center bg-white shadow-none md:shadow-none
+                    hover:shadow-custom-sm border-2 border-zinc-200 transition-all
+                    hover:border-primary-500 hover:shadow-primary-500 rounded-2xl">
+          {% if category.image %}
+            <img class="w-16 md:w-20 h-fit" src="{{ category.image.url }}" alt="{{ category.title }}">
+          {% else %}
+            <img class="w-16 md:w-20 h-fit opacity-40" src="{{ MEDIA_URL }}image/default-category.png" alt="بدون تصویر">
+          {% endif %}
+        </div>
+        <p class="text-center text-zinc-700 pt-2 text-sm">
+          {{ category.title }} <br>
+          <span class="text-xs text-gray-500">( {{ category.product_count }} محصول )</span>
+        </p>
+      </a>
+    {% empty %}
+      <p class="col-span-full text-center text-gray-600">هیچ دسته‌بندی پیدا نشد</p>
+    {% endfor %}
+  </div>
+</div>
