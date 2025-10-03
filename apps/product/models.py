@@ -107,8 +107,8 @@ class Product(Base):
             return clean_text[:150]
         return ""
 
-    # def get_absolute_url(self):
-    #     return reverse("shop:product_detail", kwargs={"slug": self.slug})
+    def get_absolute_url(self):
+        return reverse("product:product_detail", kwargs={"slug": self.slug})
 
     # def get_discount_percentage(self):
     #     discounts = [
@@ -181,11 +181,20 @@ class ProductGallery(models.Model):
 
 # نظر کاربران
 # ========================
+# نظر کاربران
 class Comment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="comments", verbose_name="کاربر")
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="comments", verbose_name="محصول")
     text = models.TextField(verbose_name="متن نظر")
     is_suggest = models.BooleanField(default=False, verbose_name="پیشنهاد وضعیت")
+
+    # اضافه کردن فیلد rating
+    rating = models.PositiveSmallIntegerField(
+        default=5,
+        verbose_name="امتیاز",
+        choices=[(1, '۱ ستاره'), (2, '۲ ستاره'), (3, '۳ ستاره'), (4, '۴ ستاره'), (5, '۵ ستاره')]
+    )
+
     parent = models.ForeignKey("self", on_delete=models.CASCADE, related_name="replies", null=True, blank=True, verbose_name="والد")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ثبت")
     isActive = models.BooleanField(default=False, verbose_name="فعال")

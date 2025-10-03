@@ -1,6 +1,11 @@
 from django.shortcuts import render
 from django.db.models import Count
 from .models import Category,Brand
+from django.db.models import Q,Count,Min,Max
+from django.core.paginator import Paginator
+from .filters import ProductFilter
+from django.db.models import Sum
+
 
 def category_group_view(request):
     # همه دسته‌بندی‌ها همراه با شمارش محصولات
@@ -75,3 +80,310 @@ def top_brands_view(request):
         'brands': brands,
     }
     return render(request, 'product_app/brands.html', context)
+
+
+
+from django.shortcuts import get_object_or_404, render
+from django.views.generic import DetailView
+from django.db.models import Prefetch, Count, Avg
+from django.http import JsonResponse
+from .models import Product, ProductGallery, Comment, LikeOrUnlike
+from apps.user.models import CustomUser
+
+class ProductDetailView(DetailView):
+    model = Product
+    template_name = 'product_app/product_detail.html'
+    context_object_name = 'product'
+
+    def get_object(self, queryset=None):
+        slug = self.kwargs.get('slug')
+        return get_object_or_404(
+            Product.objects.select_related('brand')
+                         .prefetch_related(
+                             'categories',
+                             'gallery',
+                             Prefetch(
+                                 'comments',
+                                 queryset=Comment.objects.filter(isActive=True)
+                                 .select_related('user')
+                                 .prefetch_related('replies')
+                             )
+                         )
+                         .filter(isActive=True),
+            slug=slug
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        product = self.object
+
+        # محاسبه امتیاز متوسط محصول
+        comments = product.comments.filter(isActive=True)
+        if comments.exists():
+            avg_rating = comments.aggregate(avg=Avg('rating'))['avg']
+            context['average_rating'] = round(avg_rating, 1)
+        else:
+            context['average_rating'] = 0
+
+        # تعداد نظرات
+        context['comments_count'] = comments.count()
+
+        # تعداد پیشنهادها
+        context['suggest_count'] = comments.filter(is_suggest=True).count()
+
+        # گالری محصول
+        context['gallery'] = product.gallery.all()
+
+        # محصولات مرتبط (همان دسته‌بندی)
+        related_products = Product.objects.filter(
+            categories__in=product.categories.all(),
+            isActive=True
+        ).exclude(id=product.id).distinct()[:8]
+        context['related_products'] = related_products
+
+        # ویژگی‌های محصول
+        features = product.features_value.select_related('feature', 'filterValue').all()
+        context['features'] = features
+
+        return context
+
+# ویو برای ثبت نظر
+def add_comment(request, product_slug):
+    if request.method == 'POST' and request.user.is_authenticated:
+        product = get_object_or_404(Product, slug=product_slug, isActive=True)
+        text = request.POST.get('text')
+        is_suggest = request.POST.get('is_suggest') == 'on'
+        parent_id = request.POST.get('parent_id')
+
+        if text:
+            comment = Comment(
+                user=request.user,
+                product=product,
+                text=text,
+                is_suggest=is_suggest
+            )
+
+            if parent_id:
+                parent_comment = get_object_or_404(Comment, id=parent_id)
+                comment.parent = parent_comment
+
+            comment.save()
+
+            return JsonResponse({
+                'success': True,
+                'message': 'نظر شما با موفقیت ثبت شد و پس از تایید نمایش داده می‌شود.'
+            })
+
+    return JsonResponse({
+        'success': False,
+        'message': 'خطا در ثبت نظر'
+    }, status=400)
+
+# ویو برای لایک/دیسلایک
+def like_unlike_comment(request, comment_id):
+    if request.method == 'POST' and request.user.is_authenticated:
+        comment = get_object_or_404(Comment, id=comment_id)
+        action = request.POST.get('action')  # 'like' or 'unlike'
+
+        # بررسی آیا کاربر قبلا روی این نظر واکنش داشته یا نه
+        like_unlike, created = LikeOrUnlike.objects.get_or_create(
+            user=request.user,
+            comment=comment,
+            product=comment.product
+        )
+
+        if action == 'like':
+            if like_unlike.like:
+                # اگر قبلا لایک کرده، لایک را برمی‌دارد
+                like_unlike.like = False
+            else:
+                like_unlike.like = True
+                like_unlike.unlike = False
+        elif action == 'unlike':
+            if like_unlike.unlike:
+                # اگر قبلا دیسلایک کرده، دیسلایک را برمی‌دارد
+                like_unlike.unlike = False
+            else:
+                like_unlike.unlike = True
+                like_unlike.like = False
+
+        like_unlike.save()
+
+        # تعداد لایک‌ها و دیسلایک‌های فعلی
+        likes_count = comment.likes.filter(like=True).count()
+        unlikes_count = comment.likes.filter(unlike=True).count()
+
+        return JsonResponse({
+            'success': True,
+            'likes_count': likes_count,
+            'unlikes_count': unlikes_count,
+            'user_liked': like_unlike.like,
+            'user_unliked': like_unlike.unlike
+        })
+
+    return JsonResponse({
+        'success': False,
+        'message': 'خطا در ثبت واکنش'
+    }, status=400)
+
+# ویو برای دریافت نظرات با صفحه‌بندی
+def get_comments_ajax(request, product_slug):
+    if request.method == 'GET':
+        product = get_object_or_404(Product, slug=product_slug, isActive=True)
+        page = int(request.GET.get('page', 1))
+        comments_per_page = 5
+
+        # نظرات والد (بدون parent)
+        comments = product.comments.filter(
+            isActive=True,
+            parent__isnull=True
+        ).select_related('user').prefetch_related('replies')
+
+        # محاسبه صفحه‌بندی
+        total_comments = comments.count()
+        start_index = (page - 1) * comments_per_page
+        end_index = start_index + comments_per_page
+
+        comments_page = comments[start_index:end_index]
+
+        # ساختار داده‌ای برای پاسخ
+        comments_data = []
+        for comment in comments_page:
+            comment_data = {
+                'id': comment.id,
+                'user_name': comment.user.get_full_name() or comment.user.username,
+                'text': comment.text,
+                'is_suggest': comment.is_suggest,
+                'created_at': comment.get_jalali_date(),
+                'replies': []
+            }
+
+            # پاسخ‌های این نظر
+            for reply in comment.replies.filter(isActive=True):
+                reply_data = {
+                    'id': reply.id,
+                    'user_name': reply.user.get_full_name() or reply.user.name,
+                    'text': reply.text,
+                    'created_at': reply.get_jalali_date(),
+                }
+                comment_data['replies'].append(reply_data)
+
+            comments_data.append(comment_data)
+
+        return JsonResponse({
+            'comments': comments_data,
+            'has_next': end_index < total_comments,
+            'current_page': page,
+            'total_pages': (total_comments + comments_per_page - 1) // comments_per_page
+        })
+
+# -------------------------- shop ------------------------------
+
+
+def get_products_filter(request, *args, **kwargs):
+    """فیلتر دسته‌بندی محصولات"""
+    products_group = Category.objects.annotate(
+        product_count=Count('products', filter=Q(products__isActive=True))
+    ).filter(
+        isActive=True,
+        product_count__gt=0
+    ).order_by('-product_count')
+
+    return render(request, 'product_app/partials/group_filter_pc.html', {
+        'groups': products_group
+    })
+
+def get_brands(request, *args, **kwargs):
+    """فیلتر برندها بر اساس دسته‌بندی"""
+    product_group = get_object_or_404(Category, slug=kwargs['slug'])
+
+    # بهینه‌سازی کوئری
+    brands = Brand.objects.filter(
+        products__categories=product_group,
+        products__isActive=True
+    ).annotate(
+        brand_count=Count('products', filter=Q(products__isActive=True))
+    ).filter(
+        brand_count__gt=0
+    ).distinct().order_by('-brand_count')
+
+    return render(request, 'product_app/partials/brand_filter_pc.html', {
+        'brands': brands
+    })
+
+def get_feature_filter(request, *args, **kwargs):
+    """فیلتر ویژگی‌ها"""
+    slug = kwargs['slug']
+    group_product = get_object_or_404(Category, slug=slug)
+
+    # بارگذاری مرتبط برای بهینه‌سازی
+    feature_list = group_product.features.prefetch_related('feature_values')
+    feature_dict = {}
+
+    for feature in feature_list:
+        feature_dict[feature] = feature.feature_values.all()
+
+    return render(request, 'product_app/partials/feature_list_filer.html', {
+        'feature_dict': feature_dict
+    })
+
+def show_by_filter(request, *args, **kwargs):
+    """نمایش محصولات با فیلترهای اعمال شده"""
+    slug = kwargs['slug']
+    group = get_object_or_404(Category, slug=slug)
+
+    # کوئری پایه
+    products = Product.objects.filter(
+        isActive=True,
+        categories=group
+    ).select_related('brand').prefetch_related(
+        'features_value',
+        'features_value__filterValue'
+    )
+
+    # محدوده قیمت
+    result_price = products.aggregate(
+        max_price=Max('price'),
+        min_price=Min('price')
+    )
+
+    # اعمال فیلترها
+    filter_obj = ProductFilter(request.GET, queryset=products)
+    products = filter_obj.qs
+
+    # فیلتر ویژگی‌ها
+    feature_filter = request.GET.getlist('feature')
+    if feature_filter:
+        products = products.filter(
+            features_value__filterValue__id__in=feature_filter
+        ).distinct()
+
+    # فیلتر برند
+    brand_filter = request.GET.getlist('brand')
+    if brand_filter:
+        products = products.filter(brand__id__in=brand_filter)
+
+    # مرتب‌سازی
+    sort = request.GET.get('sort')
+    if sort == '1':
+        products = products.order_by('-createAt')
+    elif sort == '2':
+        products = products.order_by('-price')
+    elif sort == '3':
+        products = products.order_by('price')
+    elif sort == '4':
+        products = products.annotate(
+            total_sold=Sum('orders_details_product__qty')
+        ).order_by('-total_sold')
+    else:
+        products = products.order_by('-createAt')  # حالت پیش‌فرض
+
+    context = {
+        'products': products,
+        'result_price': result_price,
+        'slug': slug,
+        'group': group,
+        'filter': filter_obj,
+    }
+
+    return render(request, 'product_app/shop.html', context)

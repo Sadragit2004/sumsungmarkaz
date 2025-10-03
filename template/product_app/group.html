@@ -3,7 +3,7 @@
 
   <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
     {% for category in categories %}
-      <a href="" class="flex flex-col justify-center items-center group">
+      <a href="{% url 'product:shop' slug=category.slug %}" class="flex flex-col justify-center items-center group">
         <div class="size-28 md:size-32 p-3 flex justify-center bg-white shadow-none md:shadow-none
                     hover:shadow-custom-sm border-2 border-zinc-200 transition-all
                     hover:border-primary-500 hover:shadow-primary-500 rounded-2xl">
