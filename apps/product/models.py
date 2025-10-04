@@ -107,6 +107,15 @@ class Product(Base):
             return clean_text[:150]
         return ""
 
+    @property
+    def avg_rating(self):
+        """محاسبه میانگین امتیاز محصول"""
+        comments = self.comments.filter(isActive=True)
+        if comments.exists():
+            total_rating = sum(comment.rating for comment in comments)
+            return round(total_rating / comments.count(), 1)
+        return 0
+
     def get_absolute_url(self):
         return reverse("product:product_detail", kwargs={"slug": self.slug})
 

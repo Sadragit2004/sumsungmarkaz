@@ -311,6 +311,25 @@ def get_brands(request, *args, **kwargs):
         'brands': brands
     })
 
+
+
+
+
+def top_brands_view_category(request):
+    """
+    Fetches top brands sorted by the number of active products.
+    """
+    brands = Brand.objects.filter(isActive=True).annotate(
+        product_count=Count('products')
+    ).order_by('-product_count')[:10]  # Get the top 10 brands
+
+    context = {
+        'brands': brands,
+    }
+    return render(request, 'product_app/partials/brand_filter_pc.html', context)
+
+
+
 def get_feature_filter(request, *args, **kwargs):
     """فیلتر ویژگی‌ها"""
     slug = kwargs['slug']
@@ -327,10 +346,16 @@ def get_feature_filter(request, *args, **kwargs):
         'feature_dict': feature_dict
     })
 
+from django.core.paginator import Paginator
+from django.http import JsonResponse
+
 def show_by_filter(request, *args, **kwargs):
     """نمایش محصولات با فیلترهای اعمال شده"""
     slug = kwargs['slug']
     group = get_object_or_404(Category, slug=slug)
+
+    # دریافت شماره صفحه از درخواست
+    page_number = request.GET.get('page', 1)
 
     # کوئری پایه
     products = Product.objects.filter(
@@ -378,8 +403,43 @@ def show_by_filter(request, *args, **kwargs):
     else:
         products = products.order_by('-createAt')  # حالت پیش‌فرض
 
+    # پیجینیشن برای Load More
+    paginator = Paginator(products, 1)  # 8 محصول در هر صفحه
+    page_obj = paginator.get_page(page_number)
+
+    # اگر درخواست AJAX باشد
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        products_data = []
+        for product in page_obj:
+            product_data = {
+                'id': product.id,
+                'title': product.title,
+                'brand': product.brand.title,
+                'image_url': product.image.url,
+                'price': product.price,
+                'avg_rating': product.avg_rating,
+                'comments_count': product.comments.count(),
+                'url': product.get_absolute_url(),
+                'colors': []
+            }
+
+            # اضافه کردن رنگ‌ها
+            for feature in product.features_value.all():
+                if feature.feature.title == "رنگ":
+                    product_data['colors'].append({
+                        'value': feature.filterValue.value
+                    })
+
+            products_data.append(product_data)
+
+        return JsonResponse({
+            'products': products_data,
+            'has_next': page_obj.has_next(),
+            'next_page_number': page_obj.next_page_number() if page_obj.has_next() else None
+        })
+
     context = {
-        'products': products,
+        'products': page_obj,
         'result_price': result_price,
         'slug': slug,
         'group': group,

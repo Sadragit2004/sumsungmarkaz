@@ -1,0 +1,37 @@
+{% for feature, values in feature_dict.items %}
+<div class="border border-zinc-100 h-fit rounded-2xl py-2 hover:shadow-sm transition-all">
+    <button class="menu-toggle flex justify-between w-full py-3 px-4 rounded-2xl cursor-pointer">
+        <span class="text-zinc-700 text-sm">{{ feature.title }}</span>
+        <img class="w-4 transition-transform opacity-80" src="{{ media_url }}image/icons/arrowDown.svg" alt="">
+    </button>
+
+    <ul class="submenu hidden mt-2">
+        {% for value in values %}
+        <li>
+            <div class="flex w-full items-center gap-x-2 py-1 px-4">
+                <input id="feature-{{ feature.id }}-{{ value.id }}"
+                       type="checkbox"
+                       name="feature"
+                       value="{{ value.id }}"
+                       class="filter-checkbox h-4 w-4 accent-primary-500 cursor-pointer rounded-xl border-gray-300 bg-gray-100"
+                       {% if value.id|stringformat:"s" in request.GET.feature %}checked{% endif %}>
+
+                {% if feature.title == "رنگ" %}
+                    <label for="feature-{{ feature.id }}-{{ value.id }}" class="flex items-center gap-x-2 cursor-pointer">
+                        <span class="size-5 rounded-full border border-gray-300"
+                              style="background-color: {{ value.value }}"></span>
+                        <span class="text-xs text-zinc-600">{{ value.value }}</span>
+                    </label>
+                {% else %}
+                    <label for="feature-{{ feature.id }}-{{ value.id }}" class="w-full cursor-pointer py-2 pl-4 text-zinc-600 text-xs">
+                        <span>{{ value.value }}</span>
+                    </label>
+                {% endif %}
+            </div>
+        </li>
+        {% empty %}
+        <li class="px-4 py-2 text-gray-400 text-xs">موردی یافت نشد</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endfor %}
