@@ -1,9 +1,86 @@
+<style>
+  /* اصلاح شمارنده سبد خرید */
+#cart-counter {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ef4444;
+    color: white;
+    font-size: 10px;
+    border-radius: 50%;
+    height: 18px;
+    width: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+/* انیمیشن برای شمارنده */
+.animate-ping {
+    animation: ping 0.5s cubic-bezier(0, 0, 0.2, 1);
+}
+
+@keyframes ping {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    75%, 100% {
+        transform: scale(1.3);
+        opacity: 0;
+    }
+}
+
+/* استایل‌های ضروری برای سبد خرید */
+.cart-dropdown {
+    z-index: 1000 !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(-10px) !important;
+    transition: all 0.3s ease !important;
+}
+
+.group:hover .cart-dropdown {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+}
+
+/* برای نمایش بهتر در حالت‌های مختلف */
+@media (max-width: 768px) {
+    #cart-counter {
+        top: -6px;
+        right: -6px;
+        height: 16px;
+        width: 16px;
+        font-size: 9px;
+    }
+
+    .cart-dropdown {
+        position: fixed !important;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -40%) !important;
+        width: 90vw !important;
+        max-width: 400px !important;
+    }
+
+    .group:hover .cart-dropdown {
+        transform: translate(-50%, -50%) !important;
+    }
+}
+</style>
+
 <header class="max-w-[1700px] fixed w-full z-50 flex md:block bg-white md:bg-transparent">
     <!-- top -->
     <div class="flex items-center justify-between bg-white px-4 md:px-8 lg:px-20 py-5 shadow-lg relative order-2 md:order-none w-full border-b border-zinc-200">
       <!-- logo -->
       <a href="/" class="flex justify-end md:justify-center z-10 pl-2 md:pl-0">
-        <img src=" {{media_url}}image/logo.png" class="max-w-28 md:max-w-36 h-fit" alt="">
+        <img src="{{media_url}}image/logo.png" class="max-w-28 md:max-w-36 h-fit" alt="">
       </a>
       <!-- icon -->
       <svg class="hidden md:block absolute top-full md:right-4 lg:right-10" width="158" height="19" viewBox="0 0 158 19" fill="white" xmlns="http://www.w3.org/2000/svg">
@@ -78,116 +155,58 @@
 </div>
 
         <!-- cart -->
-        <div class="flex items-center py-2 px-2.5 rounded-xl border border-zinc-200 group relative cursor-pointer transition-all hover:shadow-xl">
-          <button class="relative">
-            <span class="cursor-pointer">
-              <svg width="22px" height="22px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                <g id="Iconly/Light/Bag" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <div class="relative group">
+          <div class="flex items-center py-2 px-2.5 rounded-xl border border-zinc-200 cursor-pointer transition-all hover:shadow-xl">
+            <button class="relative">
+              <!-- شمارنده محصولات -->
+              <div id="cart-counter" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center transition-all duration-300">
+                0
+              </div>
+
+              <span class="cursor-pointer">
+                <svg width="22px" height="22px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                  <g id="Iconly/Light/Bag" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
                     <g class="stroke-gray-800" id="Bag" transform="translate(2.500000, 1.500000)" stroke="#200E32" stroke-width="1.5">
-                        <path d="M14.01373,20.0000001 L5.66590392,20.0000001 C2.59954235,20.0000001 0.247139589,18.8924486 0.915331812,14.4347827 L1.69336385,8.39359272 C2.10526317,6.16933642 3.52402748,5.31807783 4.76887874,5.31807783 L14.9473685,5.31807783 C16.2105264,5.31807783 17.5469108,6.23340964 18.0228834,8.39359272 L18.8009154,14.4347827 C19.3684211,18.3890161 17.0800916,20.0000001 14.01373,20.0000001 Z" id="Path_33955"></path>
-                        <path d="M14.1510298,5.09839819 C14.1510298,2.71232585 12.216736,0.7779932 9.83066366,0.7779932 L9.83066366,0.7779932 C8.68166274,0.773163349 7.57805185,1.22619323 6.76386233,2.03694736 C5.9496728,2.84770148 5.49199087,3.94938696 5.49199087,5.09839819 L5.49199087,5.09839819" id="Path_33956"></path>
-                        <line x1="12.7963387" y1="9.60183071" x2="12.7505721" y2="9.60183071" id="Line_192"></line>
-                        <line x1="6.96567509" y1="9.60183071" x2="6.9199085" y2="9.60183071" id="Line_193"></line>
+                      <path d="M14.01373,20.0000001 L5.66590392,20.0000001 C2.59954235,20.0000001 0.247139589,18.8924486 0.915331812,14.4347827 L1.69336385,8.39359272 C2.10526317,6.16933642 3.52402748,5.31807783 4.76887874,5.31807783 L14.9473685,5.31807783 C16.2105264,5.31807783 17.5469108,6.23340964 18.0228834,8.39359272 L18.8009154,14.4347827 C19.3684211,18.3890161 17.0800916,20.0000001 14.01373,20.0000001 Z" id="Path_33955"></path>
+                      <path d="M14.1510298,5.09839819 C14.1510298,2.71232585 12.216736,0.7779932 9.83066366,0.7779932 L9.83066366,0.7779932 C8.68166274,0.773163349 7.57805185,1.22619323 6.76386233,2.03694736 C5.9496728,2.84770148 5.49199087,3.94938696 5.49199087,5.09839819 L5.49199087,5.09839819" id="Path_33956"></path>
+                      <line x1="12.7963387" y1="9.60183071" x2="12.7505721" y2="9.60183071" id="Line_192"></line>
+                      <line x1="6.96567509" y1="9.60183071" x2="6.9199085" y2="9.60183071" id="Line_193"></line>
                     </g>
-                </g>
-            </svg>
-            </span>
-          </button>
-          <div class="z-50 group-hover:block -left-4 md:left-0 top-[39px] w-96 md:w-[400px] rounded-lg bg-white shadow-lg hidden absolute">
-            <!-- Head -->
-            <div class="flex items-center justify-between p-4 pb-2 border-b border-zinc-200 mx-5">
-              <div class="text-sm text-zinc-500">
-                2 کالا
+                  </g>
+                </svg>
+              </span>
+            </button>
+          </div>
+
+          <!-- محتوای سبد خرید -->
+          <div class="cart-dropdown absolute left-0 md:left-auto md:right-0 top-full mt-3 w-80 md:w-96 rounded-lg bg-white shadow-2xl border border-gray-200">
+            <!-- هدر سبد خرید -->
+            <div class="flex items-center justify-between p-4 border-b border-gray-200">
+              <div class="text-sm text-gray-600">
+                <span id="cart-items-count">0</span> کالا
               </div>
+              <button class="text-xs text-red-500 hover:text-red-700 transition-colors" onclick="clearCart()">
+                پاک کردن همه
+              </button>
             </div>
-            <!-- Items -->
-            <div class="h-60">
-              <ul class="main-scroll h-full space-y-2 divide-y divide-gray-100 overflow-y-auto p-5 pl-2">
-                <li>
-                  <div class="flex gap-x-2 py-5">
-                    <!-- Product -->
-                    <div class="relative min-w-fit">
-                      <a href="./single-product.html">
-                        <img alt="" class="h-[120px] w-[120px] rounded-xl" src=" {{media_url}}image/products/1.webp">
-                      </a>
-                    </div>
-                    <div class="w-full space-y-1.5">
-                      <!-- Title -->
-                      <a class="line-clamp-2 h-12 text-zinc-700 font-yekanBakhRegular" href="./single-product.html">
-                        لپ تاپ مدل بنوو
-                      </a>
-                      <!-- Attribute -->
-                      <div class="flex items-center justify-between gap-x-2">
-                        <!-- Price -->
-                        <div class="text-gray-700">
-                          <span class="text-sm">17,300,000</span>
-                          <span class="text-sm">تومان</span>
-                        </div>
-                        <!-- Quantity -->
-                        <div class="quantity-container flex h-10 max-w-28 items-center justify-between rounded-lg border border-gray-100 px-2 py-1">
-                          <button class="cursor-pointer" type="button" data-action="increment">
-                            <svg class="fill-green-500" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 256 256"><path d="M222,128a6,6,0,0,1-6,6H134v82a6,6,0,0,1-12,0V134H40a6,6,0,0,1,0-12h82V40a6,6,0,0,1,12,0v82h82A6,6,0,0,1,222,128Z"></path></svg>
-                          </button>
-                          <input value="1" disabled type="number" class="flex h-5 w-full grow select-none items-center justify-center bg-transparent text-center text-sm text-zinc-700 outline-none">
-                          <button class="cursor-pointer" type="button" data-action="decrement">
-                            <svg class="fill-red-500" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 256 256"><path d="M222,128a6,6,0,0,1-6,6H40a6,6,0,0,1,0-12H216A6,6,0,0,1,222,128Z"></path></svg>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="flex gap-x-2 py-5">
-                    <!-- Product -->
-                    <div class="relative min-w-fit">
-                      <a href="./single-product.html">
-                        <img alt="" class="h-[120px] w-[120px] rounded-xl" src=" {{media_url}}image/products/3.webp">
-                      </a>
-                    </div>
-                    <div class="w-full space-y-1.5">
-                      <!-- Title -->
-                      <a class="line-clamp-2 h-12 text-zinc-700 font-yekanBakhRegular" href="./single-product.html">
-                        هنذفری بلوتوثی شیائومی
-                      </a>
-                      <!-- Attribute -->
-                      <div class="flex items-center justify-between gap-x-2">
-                        <!-- Price -->
-                        <div class="text-gray-700">
-                          <span class="text-sm">1,800,000</span>
-                          <span class="text-sm">تومان</span>
-                        </div>
-                        <!-- Quantity -->
-                        <div class="quantity-container flex h-10 max-w-28 items-center justify-between rounded-lg border border-gray-100 px-2 py-1">
-                          <button class="cursor-pointer" type="button" data-action="increment">
-                            <svg class="fill-green-500" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 256 256"><path d="M222,128a6,6,0,0,1-6,6H134v82a6,6,0,0,1-12,0V134H40a6,6,0,0,1,0-12h82V40a6,6,0,0,1,12,0v82h82A6,6,0,0,1,222,128Z"></path></svg>
-                          </button>
-                          <input value="1" disabled type="number" class="flex h-5 w-full grow select-none items-center justify-center bg-transparent text-center text-sm text-zinc-700 outline-none">
-                          <button class="cursor-pointer" type="button" data-action="decrement">
-                            <svg class="fill-red-500" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 256 256"><path d="M222,128a6,6,0,0,1-6,6H40a6,6,0,0,1,0-12H216A6,6,0,0,1,222,128Z"></path></svg>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            <!-- Down Price -->
-            <div class="flex items-center justify-between border-t border-gray-100 p-5">
-              <div class="flex flex-col items-center gap-y-1">
-                <div class="text-sm text-zinc-600">
-                  مبلغ قابل پرداخت
-                </div>
-                <div class="text-zinc-600">
-                  <span class="font-bold">3,600,000</span>
-                  <span class="text-xs">تومان</span>
+
+            <!-- لیست محصولات -->
+            <div class="max-h-60 overflow-y-auto">
+              <div id="cart-items-container" class="p-4 space-y-4">
+                <div class="text-center py-8 text-gray-500">
+                  سبد خرید شما خالی است
                 </div>
               </div>
-              <a href="./checkout.html" class="w-28 py-3 text-sm bg-primary-600 hover:bg-primary-500 transition text-gray-100 rounded-xl text-center cursor-pointer">
-                <button class="cursor-pointer" type="button">
-                  ثبت سفارش
-                </button>
+            </div>
+
+            <!-- پایین سبد خرید -->
+            <div class="p-4 border-t border-gray-200">
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-sm text-gray-600">مبلغ قابل پرداخت</span>
+                <span id="cart-total-price" class="font-medium text-gray-800">0 تومان</span>
+              </div>
+              <a href="{% url 'order:createOrder' %}" class="block w-full py-3 text-center bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                ثبت سفارش
               </a>
             </div>
           </div>

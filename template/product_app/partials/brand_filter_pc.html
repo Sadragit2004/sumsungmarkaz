@@ -10,8 +10,10 @@
             <div class="flex w-full items-center gap-x-2 py-1 px-4">
                 <input id="brand-{{ brand.id }}"
                        type="checkbox"
+                       name="brand"
                        value="{{ brand.id }}"
-                       class="h-4 w-4 accent-primary-500 cursor-pointer rounded-xl border-gray-300 bg-gray-100">
+                       class="filter-checkbox h-4 w-4 accent-primary-500 cursor-pointer rounded-xl border-gray-300 bg-gray-100"
+                       {% if brand.id in selected_brands %}checked{% endif %}>
                 <label for="brand-{{ brand.id }}" class="w-full cursor-pointer py-2 pl-4 text-zinc-600 text-xs">
                     <span>
                         {{ brand.title }}

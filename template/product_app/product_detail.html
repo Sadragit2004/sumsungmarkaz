@@ -1,6 +1,6 @@
 {% extends 'main_template.html' %}
 {% load static %}
-
+{% load humanize %}
 
 {% block content %}
 <main class="pt-24 md:pt-48 px-2 md:px-10">
@@ -178,7 +178,7 @@
             </div>
             <div class="flex flex-col justify-center py-5">
               <div class="text-zinc-800 text-left">
-                <span class="font-yekanBakhExtraBold text-3xl">{{ product.price|floatformat:0 }}</span>
+                <span class="font-yekanBakhExtraBold text-3xl">{{ product.price|intcomma }}</span>
                 <span class="text-xs">تومان</span>
               </div>
               <div class="text-xs text-red-400">
@@ -194,9 +194,12 @@
                 </button>
               </div>
             </div>
-            <button class="hidden lg:block mx-auto cursor-pointer w-full px-2 py-3 text-sm bg-gradient-to-bl from-primary-400 to-primary-600 hover:opacity-80 transition text-gray-100 rounded-lg">
-              افزودن به سبد خرید
-            </button>
+<!-- دکمه ساده شده - فقط product_id -->
+<!-- دکمه افزودن به سبد خرید -->
+<button class="hidden lg:block mx-auto cursor-pointer w-full px-2 py-3 text-sm bg-gradient-to-bl from-primary-400 to-primary-600 hover:opacity-80 transition text-gray-100 rounded-lg"
+        onclick="addToCart('{{product.id}}')">
+    افزودن به سبد خرید
+</button>
           </div>
           <div class="flex items-center gap-x-1 mt-4 text-zinc-600 text-xs">
             <svg class="fill-zinc-600" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z"></path></svg>
@@ -209,7 +212,7 @@
             </button>
             <span class="flex flex-col justify-center items-end w-1/2">
               <div class="text-zinc-700 text-left">
-                <span class="font-yekanBakhExtraBold text-xl">{{ product.price|floatformat:0 }}</span>
+                <span class="font-yekanBakhExtraBold text-xl">{{ product.price|intcomma }}</span>
                 <span class="text-xs">تومان</span>
               </div>
               <div class="text-xs text-red-400">
@@ -406,7 +409,7 @@
                 </div>
                 <div class="flex items-center justify-end border-t border-dashed border-zinc-300 mt-4 pt-2">
                   <div class="text-zinc-800 flex items-center gap-x-1 justify-end font-yekanBakhBold text-lg">
-                    {{ related_product.price|floatformat:0 }}
+                    {{ related_product.price|intcomma }}
                     <img class="size-4" src="{% static 'images/icons/toman.png' %}" alt="تومان">
                   </div>
                 </div>
