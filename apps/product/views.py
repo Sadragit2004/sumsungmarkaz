@@ -280,6 +280,56 @@ def get_comments_ajax(request, product_slug):
 # -------------------------- shop ------------------------------
 
 
+def best_selling_products_view(request):
+    """
+    نمایش پرفروش‌ترین محصولات بر اساس تعداد فروش
+    """
+    # محاسبه تعداد فروش هر محصول
+    best_selling_products = Product.objects.filter(
+        orderItems__order__isFinally=True
+    ).annotate(
+        total_sold=Sum('orderItems__qty')
+    ).filter(
+        total_sold__gt=0
+    ).order_by('-total_sold')[:20]
+
+    product_list = []
+    for product in best_selling_products:
+        likes_count = LikeOrUnlike.objects.filter(product=product, like=True).count()
+        unlikes_count = LikeOrUnlike.objects.filter(product=product, unlike=True).count()
+        total_votes = likes_count + unlikes_count
+
+        comments = Comment.objects.filter(product=product, isActive=True)
+        comments_count = comments.count()
+
+        if total_votes > 0:
+            rating = 4 + (likes_count - unlikes_count) / (total_votes * 10)
+            rating = max(3.5, min(rating, 5.0))  # Clamp between 3.5 and 5.0
+        else:
+            rating = 4.0
+
+        colors = product.features_value.filter(feature__title='رنگ').values_list('value', flat=True)
+
+        product_data = {
+            'product': product,
+            'image_url': product.image.url if product.image else '',
+            'short_title': product.title,
+            'brand': product.brand.title,
+            'price': product.price,
+            'colors': colors,
+            'rating': round(rating, 1),
+            'comments_count': comments_count,
+            'total_sold': product.total_sold,  # تعداد فروش
+        }
+        product_list.append(product_data)
+
+    context = {
+        'products': product_list,
+    }
+    return render(request, 'product_app/best_selling_products.html', context)
+
+
+
 def get_products_filter(request, *args, **kwargs):
     """فیلتر دسته‌بندی محصولات"""
     products_group = Category.objects.annotate(

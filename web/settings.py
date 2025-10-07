@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'apps.user.apps.UserConfig',
     'apps.product.apps.ProductConfig',
     'apps.order.apps.OrderConfig',
+    'apps.discount.apps.DiscountConfig',
+    'apps.peyment.apps.PeymentConfig'
 ]
 
 MIDDLEWARE = [

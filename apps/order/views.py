@@ -223,7 +223,7 @@ class CreateOrderView(LoginRequiredMixin, View):
                 request,
                 f"سفارش شما با کد {order.orderCode} با موفقیت ایجاد شد و در انتظار پرداخت است."
             )
-            return redirect('main:index')
+            return redirect('order:checkout',order.id)
 
         except Exception as e:
             messages.error(
@@ -235,4 +235,50 @@ class CreateOrderView(LoginRequiredMixin, View):
 
 
 
-        
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+@login_required
+
+
+def checkout(request, order_id):
+    order = get_object_or_404(Order, id=order_id, customer=request.user)
+
+    if request.method == 'POST':
+        # ذخیره اطلاعات
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        phone = request.POST.get('phone')
+        postal_code = request.POST.get('postal_code')
+        address_detail = request.POST.get('address_detail')
+        description = request.POST.get('description')
+
+        # ذخیره اطلاعات در session
+        request.session['checkout_data'] = {
+            'first_name': first_name,
+            'last_name': last_name,
+            'phone': phone,
+            'postal_code': postal_code,
+            'address_detail': address_detail,
+            'description': description,
+        }
+
+        messages.success(request, 'با موفقیت پرداخت شد', 'success')
+        return redirect('main:index')
+
+    # دریافت اطلاعات از session
+    checkout_data = request.session.get('checkout_data', {})
+
+    # محاسبه مالیات 9 درصد
+    tax_rate = 9
+    tax_amount = (order.getFinalPrice() * tax_rate) // 100
+    final_price_with_tax = order.getFinalPrice() + tax_amount
+
+    context = {
+        'order': order,
+        'checkout_data': checkout_data,
+        'tax_rate': tax_rate,
+        'tax_amount': tax_amount,
+        'final_price_with_tax': final_price_with_tax,
+    }
+
+    return render(request, 'order_app/checkout.html', context)

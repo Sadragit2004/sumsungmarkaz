@@ -16,6 +16,5 @@ urlpatterns = [
     path('cart/', views.cart_page, name='cart_page'),
     path('save-location/', core_view.save_user_location, name='save_location'),
     path('get-location/', core_view.get_user_location, name='get_location'),
-
-
+    path('checkout/<int:order_id>/', views.checkout, name='checkout'),
 ]

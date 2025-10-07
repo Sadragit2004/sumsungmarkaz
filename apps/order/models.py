@@ -3,7 +3,7 @@ from django.utils import timezone
 import uuid
 from apps.product.models import Product, Brand
 from apps.user.models import CustomUser
-
+import utils
 # ========================
 # مدل سفارش (Order)
 # ========================
@@ -37,6 +37,14 @@ class Order(models.Model):
 
     def __str__(self):
         return f"سفارش {self.customer} - {self.orderCode}"
+
+
+    def get_order_total_price(self):
+        sum = 0
+        for item in self.details.all():
+            sum+=item.product.get_price_by_discount()*item.qty
+        finaly_total_price,tax = utils.price_by_delivery_tax(sum,self.discount)
+        return int(finaly_total_price*10)
 
     def getTotalPrice(self):
         """محاسبه جمع کل سفارش قبل از تخفیف"""

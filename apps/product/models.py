@@ -107,6 +107,27 @@ class Product(Base):
             return clean_text[:150]
         return ""
 
+
+    def get_absolute_url(self):
+        return reverse("product:product_detail", kwargs={"slug": self.slug})
+
+    def get_discount_percentage(self):
+        discounts = [
+            dbd.discountBasket.discount
+            for dbd in self.productOfDiscount.all()
+            if dbd.discountBasket.isActive
+            and dbd.discountBasket.startDate <= timezone.now()
+            and timezone.now() <= dbd.discountBasket.endDate
+        ]
+        return max(discounts) if discounts else 0
+
+    def get_price_by_discount(self):
+        discount = self.get_discount_percentage()
+        return int(self.price - (self.price * discount / 100))
+
+
+
+
     @property
     def avg_rating(self):
         """محاسبه میانگین امتیاز محصول"""
@@ -118,21 +139,6 @@ class Product(Base):
 
     def get_absolute_url(self):
         return reverse("product:product_detail", kwargs={"slug": self.slug})
-
-    # def get_discount_percentage(self):
-    #     discounts = [
-    #         dbd.discountBasket.discount
-    #         for dbd in self.site_of_discount.all()
-    #         if dbd.discountBasket.isActive
-    #         and dbd.discountBasket.start_date <= timezone.now()
-    #         and timezone.now() <= dbd.discountBasket.end_date
-    #     ]
-    #     return max(discounts) if discounts else 0
-
-    # def get_price_by_discount(self):
-    #     discount = self.get_discount_percentage()
-    #     return int(self.price - (self.price * discount / 100))
-
 
 # ========================
 # مقدار ویژگی
@@ -236,3 +242,4 @@ class LikeOrUnlike(models.Model):
     class Meta:
         verbose_name = "لایک"
         verbose_name_plural = "لایک‌ها"
+

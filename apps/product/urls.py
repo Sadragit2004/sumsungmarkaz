@@ -25,6 +25,7 @@ urlpatterns = [
     path('category/group/filter/',views.get_products_filter,name='category_filter_group'),
     path('category/brand/filter/',views.top_brands_view_category,name='category_filter_brand'),
     path('category/feature/filter/<slug:slug>/',views.get_feature_filter,name='category_filter_feature'),
+    path('f/best-selling',views.best_selling_products_view,name='best_selling_products_view'),
 
 ]
 

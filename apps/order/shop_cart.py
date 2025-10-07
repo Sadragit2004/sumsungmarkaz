@@ -19,10 +19,10 @@ class ShopCart:
         if key not in self.shop_cart:
             self.shop_cart[key] = {
                 'qty': 0,
-                'price': str(product.price),  # تبدیل به string برای اطمینان
+                'price': str(product.get_price_by_discount()),  # تبدیل به string برای اطمینان
                 'brand': product.brand.id if product.brand else None,
                 'detail': list_detail,
-                'final_price': str(product.price),  # فعلاً قیمت عادی
+                'final_price': str(product.get_price_by_discount()),  # فعلاً قیمت عادی
                 'product_id': product.id,
                 'product_name': product.title,  # استفاده از title به جای name
                 'product_image': product.image.url if product.image else ''
@@ -55,8 +55,8 @@ class ShopCart:
                     item.update({
                         'product_name': product.title,
                         'product_image': product.image.url if product.image else '',
-                        'price': str(product.price),
-                        'final_price': str(product.price)
+                        'price': str(product.get_price_by_discount()),
+                        'final_price': str(product.get_price_by_discount())
                     })
                 except Product.DoesNotExist:
                     continue
