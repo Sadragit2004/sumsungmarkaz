@@ -166,3 +166,87 @@ class OrderDetailAdmin(admin.ModelAdmin):
         return super().get_queryset(request).select_related(
             'order', 'product', 'brand'
         )
+
+
+
+from django.contrib import admin
+from .models import State, City, UserAddress
+
+
+@admin.register(State)
+class StateAdmin(admin.ModelAdmin):
+    list_display = ("name", "center", "externalId", "lat", "lng")
+    search_fields = ("name", "center")
+    ordering = ("name",)
+    list_filter = ("center",)
+    fieldsets = (
+        ("اطلاعات کلی", {
+            "fields": ("name", "center", "externalId")
+        }),
+        ("مختصات جغرافیایی", {
+            "fields": ("lat", "lng"),
+            "classes": ("collapse",)
+        }),
+    )
+    readonly_fields = ("externalId",)
+
+
+@admin.register(City)
+class CityAdmin(admin.ModelAdmin):
+    list_display = ("name", "state", "externalId", "lat", "lng")
+    search_fields = ("name", "state__name")
+    list_filter = ("state",)
+    ordering = ("state__name", "name")
+    fieldsets = (
+        ("اطلاعات شهر", {
+            "fields": ("state", "name", "externalId")
+        }),
+        ("مختصات جغرافیایی", {
+            "fields": ("lat", "lng"),
+            "classes": ("collapse",)
+        }),
+    )
+    readonly_fields = ("externalId",)
+
+
+@admin.register(UserAddress)
+class UserAddressAdmin(admin.ModelAdmin):
+    list_display = ("user", "state", "city", "postalCode", "createdAt")
+    list_filter = ("state", "city")
+    search_fields = (
+        "user__username",
+        "user__email",
+        "state__name",
+        "city__name",
+        "addressDetail",
+        "postalCode",
+    )
+    autocomplete_fields = ("user", "state", "city")
+    readonly_fields = ("createdAt",)
+    ordering = ("-createdAt",)
+    fieldsets = (
+        ("اطلاعات کاربر", {
+            "fields": ("user",)
+        }),
+        ("موقعیت مکانی", {
+            "fields": ("state", "city", "addressDetail", "postalCode")
+        }),
+        ("مختصات جغرافیایی", {
+            "fields": ("lat", "lng"),
+            "classes": ("collapse",)
+        }),
+        ("زمان ثبت", {
+            "fields": ("createdAt",),
+        }),
+    )
+
+    def full_address(self, obj):
+        return obj.fullAddress()
+    full_address.short_description = "آدرس کامل"
+
+    def coordinates_display(self, obj):
+        lat, lng = obj.coordinates()
+        return f"{lat}, {lng}" if lat and lng else "-"
+    coordinates_display.short_description = "مختصات"
+
+

@@ -232,3 +232,7 @@ class CreateOrderView(LoginRequiredMixin, View):
                 "danger"
             )
             return redirect("main:index")
+
+
+
+        

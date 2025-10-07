@@ -91,3 +91,80 @@ class OrderDetail(models.Model):
     class Meta:
         verbose_name = "جزئیات سفارش"
         verbose_name_plural = "جزئیات سفارش‌ها"
+
+
+from django.db import models
+from django.conf import settings
+
+
+class State(models.Model):
+    """
+    مدل استان‌ها
+    """
+    name = models.CharField(max_length=100, unique=True, verbose_name="نام استان")
+    center = models.CharField(max_length=100, verbose_name="مرکز استان", blank=True, null=True)
+    lat = models.DecimalField(max_digits=9, decimal_places=6, verbose_name="عرض جغرافیایی", blank=True, null=True)
+    lng = models.DecimalField(max_digits=9, decimal_places=6, verbose_name="طول جغرافیایی", blank=True, null=True)
+    externalId = models.PositiveIntegerField(unique=True, verbose_name="آیدی API", help_text="شناسه استان در API خارجی")
+
+    class Meta:
+        verbose_name = "استان"
+        verbose_name_plural = "استان‌ها"
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
+class City(models.Model):
+    """
+    مدل شهرها (وابسته به استان)
+    """
+    state = models.ForeignKey(State, on_delete=models.CASCADE, related_name="cities", verbose_name="استان")
+    name = models.CharField(max_length=100, verbose_name="نام شهر")
+    lat = models.DecimalField(max_digits=9, decimal_places=6, verbose_name="عرض جغرافیایی", blank=True, null=True)
+    lng = models.DecimalField(max_digits=9, decimal_places=6, verbose_name="طول جغرافیایی", blank=True, null=True)
+    externalId = models.PositiveIntegerField(unique=True, verbose_name="آیدی API", help_text="شناسه شهر در API خارجی")
+
+    class Meta:
+        verbose_name = "شهر"
+        verbose_name_plural = "شهرها"
+        ordering = ["name"]
+        unique_together = ("state", "name")
+
+    def __str__(self):
+        return f"{self.name} ({self.state.name})"
+
+
+class UserAddress(models.Model):
+    """
+    آدرس کاربر شامل استان و شهر
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="addresses", verbose_name="کاربر")
+    state = models.ForeignKey(State, on_delete=models.PROTECT, verbose_name="استان")
+    city = models.ForeignKey(City, on_delete=models.PROTECT, verbose_name="شهر")
+    addressDetail = models.TextField(verbose_name="آدرس دقیق")
+    postalCode = models.CharField(max_length=20, verbose_name="کد پستی", blank=True, null=True)
+    lat = models.DecimalField(max_digits=9, decimal_places=6, verbose_name="عرض جغرافیایی", blank=True, null=True)
+    lng = models.DecimalField(max_digits=9, decimal_places=6, verbose_name="طول جغرافیایی", blank=True, null=True)
+    createdAt = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ثبت")
+
+    class Meta:
+        verbose_name = "آدرس کاربر"
+        verbose_name_plural = "آدرس‌های کاربران"
+        ordering = ["-createdAt"]
+
+    def __str__(self):
+        return f"{self.user} - {self.city.name}"
+
+    def fullAddress(self):
+        return f"{self.state.name}، {self.city.name}، {self.addressDetail}"
+
+    def coordinates(self):
+        """
+        در صورت خالی بودن مختصات کاربر، از مختصات شهر استفاده می‌کند.
+        """
+        return (
+            self.lat or self.city.lat,
+            self.lng or self.city.lng,
+        )
