@@ -1,3 +1,4 @@
+{% load static %}
 <div class="mt-12 md:mt-20">
     <!-- top slider -->
     <div class="flex gap-x-4 justify-between items-center mb-7">
@@ -22,7 +23,7 @@
             <div class="card-wrapper swiper-wrapper pb-10">
                 {% for brand in brands %}
                 <div class="card swiper-slide shiny">
-                    <a href="" class="flex flex-col justify-between items-center gap-3 w-full h-36 md:h-48 md:px-4 border border-zinc-100 rounded-2xl hover:shadow-lg transition">
+                    <a href="{% url 'product:brand' slug=brand.slug %}" class="flex flex-col justify-between items-center gap-3 w-full h-36 md:h-48 md:px-4 border border-zinc-100 rounded-2xl hover:shadow-lg transition">
                         <div class="w-full h-44 flex justify-center items-center">
                             {% if brand.image %}
                                 <img class="max-w-24 md:max-w-32 w-full mx-auto" src="{{ brand.image.url }}" alt="{{ brand.title }}">

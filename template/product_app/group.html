@@ -1,5 +1,4 @@
 <div class="container mx-auto px-4 mt-10">
-  <h2 class="text-2xl font-bold text-center mb-8">دسته‌بندی‌ها بر اساس بیشترین محصول</h2>
 
   <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
     {% for category in categories %}
@@ -15,7 +14,7 @@
         </div>
         <p class="text-center text-zinc-700 pt-2 text-sm">
           {{ category.title }} <br>
-          <span class="text-xs text-gray-500">( {{ category.product_count }} محصول )</span>
+         
         </p>
       </a>
     {% empty %}

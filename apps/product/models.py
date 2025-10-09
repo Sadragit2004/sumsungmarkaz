@@ -67,7 +67,7 @@ class Category(Base):
         return ""
 
     def get_absolute_url(self):
-        return reverse("shop:category_detail", kwargs={"slug": self.slug})
+        return reverse("product:shop", kwargs={"slug": self.slug})
 
 
 # ========================

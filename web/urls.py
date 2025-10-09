@@ -26,7 +26,8 @@ urlpatterns = [
     path('product/',include('apps.product.urls',namespace='product')),
     path('order/',include('apps.order.urls',namespace='order')),
     path('discount/',include('apps.discount.urls',namespace='discount')),
-    path('peyment/',include('apps.peyment.urls',namespace='peyment'))
+    path('peyment/',include('apps.peyment.urls',namespace='peyment')),
+    path('search/',include('apps.search.urls',namespace='search'))
 
 
 ]+static(sett.MEDIA_URL,document_root = sett.MEDIA_ROOT)

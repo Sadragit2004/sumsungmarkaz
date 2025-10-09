@@ -343,25 +343,100 @@ def get_products_filter(request, *args, **kwargs):
         'groups': products_group
     })
 
-def get_brands(request, *args, **kwargs):
-    """فیلتر برندها بر اساس دسته‌بندی"""
-    product_group = get_object_or_404(Category, slug=kwargs['slug'])
 
-    # بهینه‌سازی کوئری
-    brands = Brand.objects.filter(
-        products__categories=product_group,
-        products__isActive=True
-    ).annotate(
-        brand_count=Count('products', filter=Q(products__isActive=True))
-    ).filter(
-        brand_count__gt=0
-    ).distinct().order_by('-brand_count')
+def show_brand_products(request, *args, **kwargs):
+    """نمایش محصولات مربوط به یک برند خاص با فیلتر، مرتب‌سازی و پیجینیشن"""
+    slug = kwargs['slug']
+    brand = get_object_or_404(Brand, slug=slug, isActive=True)
 
-    return render(request, 'product_app/partials/brand_filter_pc.html', {
-        'brands': brands
-    })
+    # دریافت شماره صفحه از درخواست
+    page_number = request.GET.get('page', 1)
 
+    # کوئری پایه
+    products = Product.objects.filter(
+        isActive=True,
+        brand=brand
+    ).select_related('brand').prefetch_related(
+        'features_value',
+        'features_value__filterValue'
+    )
 
+    # محدوده قیمت (min / max)
+    result_price = products.aggregate(
+        max_price=Max('price'),
+        min_price=Min('price')
+    )
+
+    # اعمال فیلترها
+    filter_obj = ProductFilter(request.GET, queryset=products)
+    products = filter_obj.qs
+
+    # فیلتر ویژگی‌ها
+    feature_filter = request.GET.getlist('feature')
+    if feature_filter:
+        products = products.filter(
+            features_value__filterValue__id__in=feature_filter
+        ).distinct()
+
+    # مرتب‌سازی
+    sort = request.GET.get('sort')
+    if sort == '1':
+        products = products.order_by('-createAt')  # جدیدترین
+    elif sort == '2':
+        products = products.order_by('-price')  # گران‌ترین
+    elif sort == '3':
+        products = products.order_by('price')  # ارزان‌ترین
+    elif sort == '4':
+        products = products.annotate(
+            total_sold=Sum('orders_details_product__qty')
+        ).order_by('-total_sold')  # پرفروش‌ترین
+    else:
+        products = products.order_by('-createAt')
+
+    # پیجینیشن
+    paginator = Paginator(products, 8)  # ۸ محصول در هر صفحه
+    page_obj = paginator.get_page(page_number)
+
+    # پاسخ AJAX برای Load More
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        products_data = []
+        for product in page_obj:
+            product_data = {
+                'id': product.id,
+                'title': product.title,
+                'brand': product.brand.title,
+                'image_url': product.image.url if product.image else '',
+                'price': product.price,
+                'avg_rating': product.avg_rating,
+                'comments_count': product.comments.count(),
+                'url': product.get_absolute_url(),
+                'colors': []
+            }
+
+            # استخراج رنگ‌ها از ویژگی‌ها
+            for feature in product.features_value.all():
+                if feature.feature.title == "رنگ" and feature.filterValue:
+                    product_data['colors'].append({
+                        'value': feature.filterValue.value
+                    })
+
+            products_data.append(product_data)
+
+        return JsonResponse({
+            'products': products_data,
+            'has_next': page_obj.has_next(),
+            'next_page_number': page_obj.next_page_number() if page_obj.has_next() else None
+        })
+
+    # پاسخ HTML معمولی
+    context = {
+        'products': page_obj,
+        'result_price': result_price,
+        'brand': brand,
+        'filter': filter_obj,
+    }
+
+    return render(request, 'product_app/brand_products.html', context)
 
 
 
