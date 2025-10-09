@@ -572,3 +572,38 @@ def show_by_filter(request, *args, **kwargs):
     }
 
     return render(request, 'product_app/shop.html', context)
+
+
+def get_categories_menu(request):
+    """
+    دریافت دسته‌بندی‌های اصلی برای منوی ساده
+    """
+    try:
+        # دریافت فقط دسته‌بندی‌های اصلی (سطح اول)
+        main_categories = Category.objects.filter(
+            parent__isnull=True,
+            isActive=True
+        ).annotate(
+            product_count=Count('products')
+        ).order_by('-product_count', 'title')[:8]
+
+        categories_data = []
+
+        for category in main_categories:
+            categories_data.append({
+                'id': category.id,
+                'title': category.title,
+                'slug': category.slug,
+                'product_count': category.product_count,
+            })
+
+        return JsonResponse({
+            'success': True,
+            'categories': categories_data
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })

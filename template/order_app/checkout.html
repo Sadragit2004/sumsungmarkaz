@@ -23,6 +23,13 @@
 
     <div class="flex flex-col lg:flex-row px-4 md:px-20 mt-10 gap-5 pb-20">
         <div class="lg:w-9/12 border border-zinc-200 rounded-xl p-5">
+            <div class="flex justify-end items-center">
+          <button style='background:#333;' id="userLocationDisplay"  onclick="openLocationModal()"
+     role="button"
+     aria-label="انتخاب شهر"   class="bg-zinc-400 hover:opacity-90 hover:shadow-lg transition rounded-lg px-4 py-2.5 text-sm text-white">
+             <span style='color:#ffff;' id="currentLocationText" style="margin-right:6px; white-space:nowrap;">انتخاب شهر</span>
+          </button>
+        </div>
             <form method="POST">
                 {% csrf_token %}
 
@@ -113,9 +120,12 @@
                     </div>
                 </div>
 
-                <a href="{% url 'peyment:request' order_id=order.id %}" class="w-full bg-primary-500 hover:bg-primary-400 text-white text-center mt-10 px-5 py-4 rounded-xl shadow-lg transition-all font-yekanBakhBold text-lg">
-                    ثبت و پرداخت
-                </a>
+               <!-- قبلا: <a href="{% url 'peyment:request' order_id=order.id %}" ...>ثبت و پرداخت</a> -->
+<button type="submit" name="action" value="pay"
+        class="w-full bg-primary-500 hover:bg-primary-400 text-white text-center mt-10 px-5 py-4 rounded-xl shadow-lg transition-all font-yekanBakhBold text-lg">
+    ثبت و پرداخت
+</button>
+
             </form>
         </div>
 

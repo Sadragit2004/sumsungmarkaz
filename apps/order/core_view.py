@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+from django.db import IntegrityError
 from .models import State, City, UserAddress
 import json
 
@@ -28,21 +29,39 @@ def save_user_location(request):
 
         # ایجاد یا آپدیت رکورد استان
         state, state_created = State.objects.get_or_create(
-            externalId=state_id,  # توجه: externalId نه external_id
+            externalId=state_id,
             defaults={
                 'name': state_name,
                 'center': state_name,
             }
         )
 
-        # ایجاد یا آپدیت رکورد شهر
-        city, city_created = City.objects.get_or_create(
-            externalId=city_id,  # توجه: externalId نه external_id
-            state=state,
-            defaults={
-                'name': city_name,
-            }
-        )
+        # ایجاد یا آپدیت رکورد شهر - با منطق بهبود یافته
+        try:
+            # ابتدا سعی می‌کنیم شهر را با externalId و state پیدا کنیم
+            city = City.objects.get(externalId=city_id, state=state)
+            # اگر پیدا شد و نام تغییر کرده، آپدیت می‌کنیم
+            if city.name != city_name:
+                city.name = city_name
+                city.save()
+        except City.DoesNotExist:
+            try:
+                # اگر پیدا نشد، شهر جدید ایجاد می‌کنیم
+                city = City.objects.create(
+                    externalId=city_id,
+                    state=state,
+                    name=city_name
+                )
+            except IntegrityError:
+                # اگر خطای تکراری داد، یعنی externalId تکراری است
+                # در این حالت سعی می‌کنیم شهر را فقط با externalId پیدا کنیم
+                city = City.objects.get(externalId=city_id)
+                # اطمینان حاصل می‌کنیم که state درست باشد
+                if city.state != state:
+                    city.state = state
+                if city.name != city_name:
+                    city.name = city_name
+                city.save()
 
         # ایجاد یا آپدیت آدرس کاربر
         user_address, created = UserAddress.objects.update_or_create(
