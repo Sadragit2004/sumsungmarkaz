@@ -172,7 +172,7 @@
                     <ul>
                         <li>
                             <a href="">
-                                <span>{{ user.username }}</span>
+                                <span>{{ user.name }} {{user.family}}</span>
                             </a>
                         </li>
                         <li>
@@ -288,17 +288,17 @@
            {% include "product_app/header_group_product.html" %}
           </div>
           <li>
-            <a href="" class="py-2 md:py-0 md:hover:bg-transparent md:rounded-none transition-all">
+            <a href="{% url 'main:about' %}" class="py-2 md:py-0 md:hover:bg-transparent md:rounded-none transition-all">
               <span class="text-zinc-800 hover:text-primary-500 transition-all">درباره ما</span>
             </a>
           </li>
           <li>
-            <a href="" class="py-2 md:py-0 md:hover:bg-transparent md:rounded-none transition-all">
+            <a href="{% url 'main:call' %}" class="py-2 md:py-0 md:hover:bg-transparent md:rounded-none transition-all">
               <span class="text-zinc-800 hover:text-primary-500 transition-all">تماس با ما</span>
             </a>
           </li>
           <li>
-            <a href="" class="py-2 md:py-0 md:hover:bg-transparent md:rounded-none transition-all">
+            <a href="{% url 'blog:list' %}" class="py-2 md:py-0 md:hover:bg-transparent md:rounded-none transition-all">
               <span class="text-zinc-800 hover:text-primary-500 transition-all">بلاگ</span>
             </a>
           </li>

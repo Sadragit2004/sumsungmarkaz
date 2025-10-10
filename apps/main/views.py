@@ -79,3 +79,14 @@ def active_banners(request):
     """
     banners = Banner.objects.filter(isActive=True, endData__gt=timezone.now())
     return render(request, 'main_app/slider_banner.html', {'banners': banners})
+
+
+
+def about(request):
+
+    return render(request,'main_app/dsm/about.html')
+
+
+def call(request):
+
+    return render(request,'main_app/dsm/call.html')

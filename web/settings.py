@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'apps.discount.apps.DiscountConfig',
     'apps.peyment.apps.PeymentConfig',
     'apps.search.apps.SearchConfig',
+    'apps.blog.apps.BlogConfig',
 ]
 
 MIDDLEWARE = [
