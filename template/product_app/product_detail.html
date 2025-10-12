@@ -2,6 +2,120 @@
 {% load static %}
 {% load humanize %}
 
+{% block meta1 %}
+    <!-- Schema.org markup -->
+
+    <title>{{ meta.title }}</title>
+    <meta name="description" content="{{ meta.description }}">
+    <meta name="robots" content="{{ meta.robots }}">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="{{ meta.og_type }}">
+    <meta property="og:site_name" content="{{ meta.og_site_name }}">
+    <meta property="og:title" content="{{ meta.og_title }}">
+    <meta property="og:description" content="{{ meta.og_description }}">
+    <meta property="og:image" content="{{ meta.og_image }}">
+    <meta property="og:url" content="{{ meta.og_url }}">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="{{ meta.twitter_card }}">
+    <meta name="twitter:title" content="{{ meta.twitter_title }}">
+    <meta name="twitter:description" content="{{ meta.twitter_description }}">
+    <meta name="twitter:image" content="{{ meta.twitter_image }}">
+
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        "name": "{{ product.title }}",
+        "description": "{{ product.description|striptags|truncatewords:30 }}",
+        "brand": {
+            "@type": "Brand",
+            "name": "{{ product.brand.title }}"
+        },
+        "category": "{% for category in product.categories.all %}{{ category.title }}{% if not forloop.last %}, {% endif %}{% endfor %}",
+        "sku": "{{ product.id }}",
+        "mpn": "{{ product.id }}",
+        "image": "{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/default-product.jpg' %}{% endif %}",
+        "offers": {
+            "@type": "Offer",
+            "url": "{{ request.build_absolute_uri }}",
+            "priceCurrency": "IRR",
+            "price": "{{ product.price }}",
+            "priceValidUntil": "{% now 'Y-m-d' %}",
+            "availability": "https://schema.org/InStock",
+            "itemCondition": "https://schema.org/NewCondition",
+            "shippingDetails": {
+                "@type": "OfferShippingDetails",
+                "shippingRate": {
+                    "@type": "MonetaryAmount",
+                    "value": "0",
+                    "currency": "IRR"
+                },
+                "shippingDestination": {
+                    "@type": "DefinedRegion",
+                    "addressCountry": "IR"
+                },
+                "deliveryTime": {
+                    "@type": "ShippingDeliveryTime",
+                    "handlingTime": {
+                        "@type": "QuantitativeValue",
+                        "minValue": 1,
+                        "maxValue": 2
+                    },
+                    "transitTime": {
+                        "@type": "QuantitativeValue",
+                        "minValue": 1,
+                        "maxValue": 3
+                    }
+                }
+            }
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "{{ average_rating }}",
+            "reviewCount": "{{ comments_count }}",
+            "bestRating": "5",
+            "worstRating": "1"
+        },
+        "review": [
+            {% for comment in product.comments.all %}
+            {% if comment.isActive %}
+            {
+                "@type": "Review",
+                "author": {
+                    "@type": "Person",
+                    "name": "{{ comment.user.get_full_name|default:comment.user.name|default:'ناشناس' }}"
+                },
+                "datePublished": "{{ comment.created_at|date:'Y-m-d' }}",
+                "description": "{{ comment.text }}",
+                "name": "{{ comment.text|truncatewords:5 }}",
+                "reviewRating": {
+                    "@type": "Rating",
+                    "ratingValue": "{% if comment.is_suggest %}5{% else %}1{% endif %}",
+                    "bestRating": "5",
+                    "worstRating": "1"
+                }
+            }{% if not forloop.last %},{% endif %}
+            {% endif %}
+            {% endfor %}
+        ],
+        "additionalProperty": [
+            {% for feature in features %}
+            {
+                "@type": "PropertyValue",
+                "name": "{{ feature.feature.title }}",
+                "value": "{{ feature.value }}"
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]
+    }
+    </script>
+
+{% endblock meta1 %}
+
+
 {% block content %}
 <main class="pt-24 md:pt-48 px-2 md:px-10">
     <div class="pb-20">
@@ -61,7 +175,8 @@
                   {% if product.image %}
                   <img src="{{ product.image.url }}"
                       class="w-20 h-20 object-cover rounded-md cursor-pointer border border-zinc-200 hover:border-zinc-400 opacity-80 hover:opacity-100 transition-all"
-                      onclick="changeImage(this)">
+                      onclick="changeImage(this)"
+                      alt='مشخص نیست'>
                   {% endif %}
 
                   {% for gallery_image in gallery %}
@@ -82,9 +197,9 @@
             </a>
             {% endfor %}
           </div>
-          <div class="text-zinc-800 md:text-2xl font-semibold leading-7">
+          <h1 class="text-zinc-800 md:text-2xl font-semibold leading-7">
             {{ product.title }}
-          </div>
+          </h1>
           <div class="text-zinc-400 text-xs md:text-sm mt-4">
             {{ product.brand.title }}
           </div>
@@ -184,7 +299,7 @@
               <div class="text-xs text-red-400">
                 تنها 1 عدد در انبار باقی مانده
               </div>
-             
+
             </div>
 <!-- دکمه ساده شده - فقط product_id -->
 <!-- دکمه افزودن به سبد خرید -->

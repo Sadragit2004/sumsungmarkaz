@@ -46,11 +46,9 @@ class BlogListView(ListView):
         context['active_category'] = self.request.GET.get('category', '')
         return context
 
-
-# جزئیات پست — اینجا view+1 انجام میشه و مقالات مرتبط هم برمی‌گرده
 def post_detail_view(request, slug):
     post = get_object_or_404(
-        BlogPost.objects.select_related('author', 'category').prefetch_related('tags'),
+        BlogPost.objects.select_related('author', 'category', 'meta_tags').prefetch_related('tags'),
         slug=slug,
         status='published'
     )
@@ -78,10 +76,30 @@ def post_detail_view(request, slug):
         else:
             related = related_qs.order_by('-views')[:3]
 
+    # گرفتن متا تگ‌ها
+    meta_tags = post.get_meta_tags()
+
+    # اگر OG URL پر نشده، URL کامل پست را قرار می‌دهیم
+    if not meta_tags.get('og_url'):
+        meta_tags['og_url'] = request.build_absolute_uri(post.get_absolute_url())
+
+    # اگر canonical_url پر نشده، URL کامل پست را قرار می‌دهیم
+    if not meta_tags.get('canonical_url'):
+        meta_tags['canonical_url'] = request.build_absolute_uri(post.get_absolute_url())
+
+    # اگر OG Image پر نشده اما پست کاور تصویر دارد، از آن استفاده می‌کنیم
+    if not meta_tags.get('og_image') and post.cover_image:
+        meta_tags['og_image'] = request.build_absolute_uri(post.cover_image.url)
+
+    # اگر Twitter Image پر نشده اما OG Image دارد، از آن استفاده می‌کنیم
+    if not meta_tags.get('twitter_image') and meta_tags.get('og_image'):
+        meta_tags['twitter_image'] = meta_tags['og_image']
+
     context = {
         'post': post,
         'related_posts': related,
         'categories': Category.objects.all(),
+        'meta_tags': meta_tags,  # اضافه کردن متا تگ‌ها به context
     }
     return render(request, 'blog_app/detail.html', context)
 

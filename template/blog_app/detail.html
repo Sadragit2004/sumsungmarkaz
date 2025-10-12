@@ -1,5 +1,90 @@
 {% extends "main_template.html" %}
 
+{% block meta1 %}
+<!-- متا تگ‌ها -->
+<title>{{ meta_tags.title }}</title>
+<meta name="description" content="{{ meta_tags.description }}">
+<meta name="author" content="{{ meta_tags.author }}">
+<meta name="copyright" content="{{ meta_tags.copyright }}">
+<meta name="robots" content="{{ meta_tags.robots }}">
+
+<!-- Open Graph -->
+<meta property="og:title" content="{{ meta_tags.og_title }}">
+<meta property="og:description" content="{{ meta_tags.og_description }}">
+{% if meta_tags.og_image %}
+<meta property="og:image" content="{{ meta_tags.og_image }}">
+{% endif %}
+<meta property="og:type" content="{{ meta_tags.og_type }}">
+<meta property="og:url" content="{{ meta_tags.og_url }}">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="{{ meta_tags.twitter_card }}">
+{% if meta_tags.twitter_site %}
+<meta name="twitter:site" content="{{ meta_tags.twitter_site }}">
+{% endif %}
+{% if meta_tags.twitter_creator %}
+<meta name="twitter:creator" content="{{ meta_tags.twitter_creator }}">
+{% endif %}
+<meta name="twitter:title" content="{{ meta_tags.twitter_title }}">
+<meta name="twitter:description" content="{{ meta_tags.twitter_description }}">
+{% if meta_tags.twitter_image %}
+<meta name="twitter:image" content="{{ meta_tags.twitter_image }}">
+{% endif %}
+
+<!-- اسکیما JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ request.build_absolute_uri }}"
+  },
+  "headline": "{{ post.title|escapejs }}",
+  "description": "{{ post.excerpt|default:post.seo_description|escapejs }}",
+  {% if post.cover_image %}
+  "image": {
+    "@type": "ImageObject",
+    "url": "{{ post.cover_image.url }}",
+    "width": "1200",
+    "height": "630"
+  },
+  {% endif %}
+  "datePublished": "{{ post.publish_at|date:'c' }}",
+  "dateModified": "{{ post.updated_at|date:'c' }}",
+  "author": {
+    "@type": "Person",
+    "name": "{{ post.author.display_name|escapejs }}"
+    {% if post.author.avatar %}
+    ,"image": "{{ post.author.avatar.url }}"
+    {% endif %}
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{ SITE_NAME|default:'وبلاگ ما' }}",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ media_url }}image/logo.png",
+      "width": "180",
+      "height": "60"
+    }
+  },
+  "articleSection": "{{ post.category.name|escapejs }}",
+  "keywords": [
+    {% for tag in post.tags.all %}"{{ tag.name|escapejs }}"{% if not forloop.last %},{% endif %}{% endfor %}
+  ],
+  "wordCount": "{{ post.content|length }}",
+  "timeRequired": "PT{{ post.reading_time|default:5 }}M",
+  "inLanguage": "fa-IR",
+  "interactionStatistic": {
+    "@type": "InteractionCounter",
+    "interactionType": "https://schema.org/ViewAction",
+    "userInteractionCount": "{{ post.views }}"
+  }
+}
+</script>
+{% endblock meta1 %}
+
 {% block content %}
 
 <main class="pt-24 md:pt-48 px-2 md:px-10">
@@ -18,7 +103,7 @@
         <div class="border border-zinc-300 rounded-3xl p-3 space-y-8">
           {% for related_post in related_posts %}
           <div class="min-h-60 transition group">
-            <a href="{{ related_post.get_absolute_url }}" class="image-box block overflow-hidden rounded-lg md:rounded-2xl">
+            <a href="{% url 'blog:detail' slug=related_post.slug %}" class="image-box block overflow-hidden rounded-lg md:rounded-2xl">
               {% if related_post.cover_image %}
               <img class="rounded-lg md:rounded-2xl max-h-56 w-full transition-transform duration-300 ease-in-out group-hover:rotate-3 group-hover:scale-110"
                    src="{{ related_post.cover_image.url }}"
@@ -30,7 +115,7 @@
               {% endif %}
             </a>
             <div class="p-2 mt-2">
-              <a href="{{ related_post.get_absolute_url }}" class="text-xs md:text-sm font-normal md:font-semibold text-zinc-700 group-hover:text-primary-500 h-12 line-clamp-2 leading-6">
+              <a href="{% url 'blog:detail' slug=related_post.slug %}" class="text-xs md:text-sm font-normal md:font-semibold text-zinc-700 group-hover:text-primary-500 h-12 line-clamp-2 leading-6">
                 {{ related_post.title }}
               </a>
               <div class="flex justify-between mt-8">
@@ -208,12 +293,12 @@
           </div>
 
           <!-- عنوان مقاله -->
-          <p class="text-xl md:text-3xl text-zinc-800 font-yekanBakhBold my-6 text-center">
+          <h1 class="text-xl md:text-3xl text-zinc-800 font-yekanBakhBold my-6 text-center">
             {{ post.title }}
-          </p>
+          </h1>
 
           <!-- محتوای مقاله -->
-          <div class="prose max-w-none">
+          <div style='text-align: justify;' class="prose max-w-none">
            {% autoescape off %}
             {{ post.description }}
            {% endautoescape %}

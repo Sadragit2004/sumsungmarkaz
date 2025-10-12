@@ -2,6 +2,64 @@
 {% load render_partial %}
 {% load humanize %}
 
+
+{% block meta1 %}
+  <title>{{ title }}</title>
+  <meta name="description" content="{{ description }}">
+  <meta name="robots" content="{{ robots }}">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="{{ og_type }}">
+  <meta property="og:site_name" content="{{ og_site_name }}">
+  <meta property="og:title" content="{{ og_title }}">
+  <meta property="og:description" content="{{ og_description }}">
+  <meta property="og:image" content="{{ og_image }}">
+  <meta property="og:url" content="{{ og_url }}">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="{{ twitter_card }}">
+  <meta name="twitter:title" content="{{ twitter_title }}">
+  <meta name="twitter:description" content="{{ twitter_description }}">
+  <meta name="twitter:image" content="{{ twitter_image }}">
+
+  <!-- Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Brand",
+    "name": "{{ brand.title|escapejs }}",
+    "description": "{{ description|striptags|escapejs }}",
+    "url": "{{ request.build_absolute_uri }}",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ request.build_absolute_uri }}{{ brand.image.url }}"
+    },
+    "makesOffer": [
+      {% for product in products %}
+      {
+        "@type": "Product",
+        "name": "{{ product.title|escapejs }}",
+        "image": "{{ request.build_absolute_uri }}{{ product.image.url }}",
+        "sku": "{{ product.id }}",
+        "brand": {
+          "@type": "Brand",
+          "name": "{{ brand.title|escapejs }}"
+        },
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "IRR",
+          "price": "{{ product.price }}",
+          "availability": "{% if product.isActive %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+          "url": "{{ request.build_absolute_uri }}{{ product.get_absolute_url }}"
+        }
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }
+  </script>
+{% endblock meta1 %}
+
+
 {% block content %}
 
 

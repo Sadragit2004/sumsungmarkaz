@@ -243,3 +243,86 @@ class LikeOrUnlike(models.Model):
         verbose_name = "لایک"
         verbose_name_plural = "لایک‌ها"
 
+
+
+# ========================
+# متاتگ محصولات و دسته‌بندی‌ها (با URL به جای آپلود تصویر)
+# ========================
+
+class MetaTag(models.Model):
+    # ارتباط با محصول یا دسته‌بندی
+    product = models.OneToOneField(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="meta_tag",
+        verbose_name="محصول",
+        null=True, blank=True
+    )
+    category = models.OneToOneField(
+        Category,
+        on_delete=models.CASCADE,
+        related_name="meta_tag",
+        verbose_name="دسته‌بندی",
+        null=True, blank=True
+    )
+    brand = models.OneToOneField(
+        Brand,
+        on_delete=models.CASCADE,
+        related_name="meta_tag",
+        verbose_name="دسته‌بندی",
+        null=True, blank=True
+    )
+
+    # فیلدهای متا
+    title = models.CharField(
+        max_length=200,
+        verbose_name="عنوان <title>"
+    )
+    description = models.TextField(
+        verbose_name="توضیحات (meta description)"
+    )
+
+    # Open Graph
+    og_type = models.CharField(max_length=50, default="website", verbose_name="og:type")
+    og_site_name = models.CharField(max_length=150, default="سامسونگ مرکزی آذربایجان", verbose_name="og:site_name")
+    og_title = models.CharField(max_length=200, verbose_name="og:title", blank=True, null=True)
+    og_description = models.TextField(verbose_name="og:description", blank=True, null=True)
+    og_image_url = models.URLField(verbose_name="og:image URL", blank=True, null=True)
+    og_url = models.URLField(verbose_name="og:url", blank=True, null=True)
+
+    # Twitter
+    twitter_card = models.CharField(max_length=50, default="summary_large_image", verbose_name="twitter:card")
+    twitter_title = models.CharField(max_length=200, verbose_name="twitter:title", blank=True, null=True)
+    twitter_description = models.TextField(verbose_name="twitter:description", blank=True, null=True)
+    twitter_image_url = models.URLField(verbose_name="twitter:image URL", blank=True, null=True)
+
+    class Meta:
+        verbose_name = "متاتگ سئو"
+        verbose_name_plural = "متاتگ‌ها"
+
+    def __str__(self):
+        if self.product:
+            return f"متاتگ محصول: {self.product.title}"
+        elif self.category:
+            return f"متاتگ دسته‌بندی: {self.category.title}"
+        return "متاتگ بدون ارتباط"
+
+    def get_meta_context(self, request):
+        """تولید context برای استفاده در قالب"""
+        default_image = request.build_absolute_uri("/media/default/og-image.jpg")
+
+        return {
+            "title": self.title,
+            "description": self.description,
+            "robots": "index, follow",
+            "og_type": self.og_type,
+            "og_site_name": self.og_site_name,
+            "og_title": self.og_title or self.title,
+            "og_description": self.og_description or self.description,
+            "og_image": self.og_image_url or default_image,
+            "og_url": self.og_url or request.build_absolute_uri(),
+            "twitter_card": self.twitter_card,
+            "twitter_title": self.twitter_title or self.title,
+            "twitter_description": self.twitter_description or self.description,
+            "twitter_image": self.twitter_image_url or default_image,
+        }

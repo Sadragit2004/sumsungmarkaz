@@ -261,3 +261,43 @@ class LikeOrUnlikeAdmin(admin.ModelAdmin):
     def jalali_date(self, obj):
         return jdatetime.datetime.fromgregorian(datetime=obj.created_at).strftime("%Y/%m/%d")
     jalali_date.short_description = "تاریخ ثبت"
+
+
+
+from django.contrib import admin
+from .models import MetaTag
+
+@admin.register(MetaTag)
+class MetaTagAdmin(admin.ModelAdmin):
+    list_display = ("__str__", "title", "product", "category")
+    list_filter = ("product", "category",'brand')
+    search_fields = ("title", "product__title", "category__title")
+
+    # مرتب کردن فیلدها در بخش ویرایش
+    fieldsets = (
+        ("ارتباط", {
+            "fields": ("product", "category",'brand'),
+            "description": "انتخاب محصول یا دسته‌بندی (یکی باید انتخاب شود)."
+        }),
+        ("Meta اصلی", {
+            "fields": ("title", "description"),
+        }),
+        ("Open Graph", {
+            "fields": ("og_type", "og_site_name", "og_title", "og_description", "og_image_url", "og_url"),
+        }),
+        ("Twitter", {
+            "fields": ("twitter_card", "twitter_title", "twitter_description", "twitter_image_url"),
+        }),
+    )
+
+    # نمایش لینک پیش‌نمایش تصویر
+    readonly_fields = []
+
+    def og_image_preview(self, obj):
+        if obj.og_image_url:
+            return f'<img src="{obj.og_image_url}" width="150" />'
+        return "-"
+    og_image_preview.allow_tags = True
+    og_image_preview.short_description = "پیش‌نمایش OG Image"
+
+

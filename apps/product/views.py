@@ -89,6 +89,9 @@ from django.db.models import Prefetch, Count, Avg
 from django.http import JsonResponse
 from .models import Product, ProductGallery, Comment, LikeOrUnlike
 from apps.user.models import CustomUser
+from django.db.models import Avg
+from django.shortcuts import get_object_or_404
+from django.db.models import Prefetch
 
 class ProductDetailView(DetailView):
     model = Product
@@ -99,17 +102,17 @@ class ProductDetailView(DetailView):
         slug = self.kwargs.get('slug')
         return get_object_or_404(
             Product.objects.select_related('brand')
-                         .prefetch_related(
-                             'categories',
-                             'gallery',
-                             Prefetch(
-                                 'comments',
-                                 queryset=Comment.objects.filter(isActive=True)
-                                 .select_related('user')
-                                 .prefetch_related('replies')
-                             )
-                         )
-                         .filter(isActive=True),
+                           .prefetch_related(
+                               'categories',
+                               'gallery',
+                               Prefetch(
+                                   'comments',
+                                   queryset=Comment.objects.filter(isActive=True)
+                                   .select_related('user')
+                                   .prefetch_related('replies')
+                               )
+                           )
+                           .filter(isActive=True),
             slug=slug
         )
 
@@ -145,7 +148,32 @@ class ProductDetailView(DetailView):
         features = product.features_value.select_related('feature', 'filterValue').all()
         context['features'] = features
 
+        # ========================
+        # اضافه کردن متاتگ
+        # ========================
+        if hasattr(product, 'meta_tag'):
+            context['meta'] = product.meta_tag.get_meta_context(self.request)
+        else:
+            # اگر متاتگ نداشت، مقادیر پیش‌فرض
+            default_image = self.request.build_absolute_uri("/media/default/og-image.jpg")
+            context['meta'] = {
+                "title": f"{product.title} | سامسونگ مرکزی آذربایجان",
+                "description": product.short_description(),
+                "robots": "index, follow",
+                "og_type": "website",
+                "og_site_name": "سامسونگ مرکزی آذربایجان",
+                "og_title": f"{product.title} | سامسونگ مرکزی آذربایجان",
+                "og_description": product.short_description(),
+                "og_image": default_image,
+                "og_url": self.request.build_absolute_uri(),
+                "twitter_card": "summary_large_image",
+                "twitter_title": f"{product.title} | سامسونگ مرکزی آذربایجان",
+                "twitter_description": product.short_description(),
+                "twitter_image": default_image,
+            }
+
         return context
+
 
 # ویو برای ثبت نظر
 def add_comment(request, product_slug):
@@ -343,7 +371,6 @@ def get_products_filter(request, *args, **kwargs):
         'groups': products_group
     })
 
-
 def show_brand_products(request, *args, **kwargs):
     """نمایش محصولات مربوط به یک برند خاص با فیلتر، مرتب‌سازی و پیجینیشن"""
     slug = kwargs['slug']
@@ -361,7 +388,7 @@ def show_brand_products(request, *args, **kwargs):
         'features_value__filterValue'
     )
 
-    # محدوده قیمت (min / max)
+    # محدوده قیمت
     result_price = products.aggregate(
         max_price=Max('price'),
         min_price=Min('price')
@@ -381,20 +408,20 @@ def show_brand_products(request, *args, **kwargs):
     # مرتب‌سازی
     sort = request.GET.get('sort')
     if sort == '1':
-        products = products.order_by('-createAt')  # جدیدترین
+        products = products.order_by('-createAt')
     elif sort == '2':
-        products = products.order_by('-price')  # گران‌ترین
+        products = products.order_by('-price')
     elif sort == '3':
-        products = products.order_by('price')  # ارزان‌ترین
+        products = products.order_by('price')
     elif sort == '4':
         products = products.annotate(
             total_sold=Sum('orders_details_product__qty')
-        ).order_by('-total_sold')  # پرفروش‌ترین
+        ).order_by('-total_sold')
     else:
         products = products.order_by('-createAt')
 
     # پیجینیشن
-    paginator = Paginator(products, 8)  # ۸ محصول در هر صفحه
+    paginator = Paginator(products, 8)
     page_obj = paginator.get_page(page_number)
 
     # پاسخ AJAX برای Load More
@@ -413,12 +440,9 @@ def show_brand_products(request, *args, **kwargs):
                 'colors': []
             }
 
-            # استخراج رنگ‌ها از ویژگی‌ها
             for feature in product.features_value.all():
                 if feature.feature.title == "رنگ" and feature.filterValue:
-                    product_data['colors'].append({
-                        'value': feature.filterValue.value
-                    })
+                    product_data['colors'].append({'value': feature.filterValue.value})
 
             products_data.append(product_data)
 
@@ -428,12 +452,18 @@ def show_brand_products(request, *args, **kwargs):
             'next_page_number': page_obj.next_page_number() if page_obj.has_next() else None
         })
 
-    # پاسخ HTML معمولی
+    # متاتگ برند
+    meta_context = {}
+    if hasattr(brand, 'meta_tag'):
+        meta_context = brand.meta_tag.get_meta_context(request)
+
+    # پاسخ HTML
     context = {
         'products': page_obj,
         'result_price': result_price,
         'brand': brand,
         'filter': filter_obj,
+        **meta_context,  # اضافه شدن متاتگ‌ها به context
     }
 
     return render(request, 'product_app/brand_products.html', context)
@@ -473,6 +503,13 @@ def get_feature_filter(request, *args, **kwargs):
 
 from django.core.paginator import Paginator
 from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404
+from django.core.paginator import Paginator
+from django.http import JsonResponse
+from django.db.models import Max, Min, Sum
+from .models import Product, Category, MetaTag
+from .filters import ProductFilter
+
 
 def show_by_filter(request, *args, **kwargs):
     """نمایش محصولات با فیلترهای اعمال شده"""
@@ -563,15 +600,39 @@ def show_by_filter(request, *args, **kwargs):
             'next_page_number': page_obj.next_page_number() if page_obj.has_next() else None
         })
 
+    # دریافت متاتگ دسته‌بندی
+    try:
+        meta_tag = group.meta_tag
+        meta_context = meta_tag.get_meta_context(request)
+    except MetaTag.DoesNotExist:
+        # مقدار پیش‌فرض اگر متاتگ وجود نداشت
+        meta_context = {
+            "title": group.title,
+            "description": f"محصولات دسته‌بندی {group.title}",
+            "robots": "index, follow",
+            "og_type": "website",
+            "og_site_name": "سامسونگ مرکزی آذربایجان",
+            "og_title": group.title,
+            "og_description": f"محصولات دسته‌بندی {group.title}",
+            "og_image": request.build_absolute_uri("/media/default/og-image.jpg"),
+            "og_url": request.build_absolute_uri(),
+            "twitter_card": "summary_large_image",
+            "twitter_title": group.title,
+            "twitter_description": f"محصولات دسته‌بندی {group.title}",
+            "twitter_image": request.build_absolute_uri("/media/default/og-image.jpg"),
+        }
+
     context = {
         'products': page_obj,
         'result_price': result_price,
         'slug': slug,
         'group': group,
         'filter': filter_obj,
+        **meta_context  # اضافه کردن متا به context قالب
     }
 
     return render(request, 'product_app/shop.html', context)
+
 
 
 def get_categories_menu(request):
