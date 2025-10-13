@@ -171,12 +171,12 @@
                 <div class="user-dropdown" id="userDropdown">
                     <ul>
                         <li>
-                            <a href="">
+                            <a href="{% url 'panel:dashboard' %}">
                                 <span>{{ user.name }} {{user.family}}</span>
                             </a>
                         </li>
                         <li>
-                            <a href="">
+                            <a href="{% url 'panel:orders' %}">
                                 <span>سفارش‌ها</span>
                             </a>
                         </li>
@@ -194,9 +194,6 @@
                 </a>
             {% endif %}
         </div>
-
-        <!-- مودال انتخاب شهر -->
-
 
         <div class="relative group">
           <div class="flex items-center py-2 px-2.5 rounded-xl border border-zinc-200 cursor-pointer transition-all hover:shadow-xl">

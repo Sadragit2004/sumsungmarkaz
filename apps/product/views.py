@@ -668,3 +668,100 @@ def get_categories_menu(request):
             'success': False,
             'error': str(e)
         })
+
+
+
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from .models import Wishlist, Product
+
+@login_required
+@require_POST
+def add_to_wishlist(request, product_id):
+    """افزودن محصول به علاقه‌مندی‌ها"""
+    try:
+        product = Product.objects.get(id=product_id, isActive=True)
+
+        # بررسی وجود محصول در علاقه‌مندی‌ها
+        wishlist_item, created = Wishlist.objects.get_or_create(
+            user=request.user,
+            product=product
+        )
+
+        if created:
+            return JsonResponse({
+                'success': True,
+                'message': 'محصول به علاقه‌مندی‌ها اضافه شد',
+                'action': 'added'
+            })
+        else:
+            return JsonResponse({
+                'success': True,
+                'message': 'این محصول قبلاً در علاقه‌مندی‌ها وجود دارد',
+                'action': 'already_exists'
+            })
+
+    except Product.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'محصول یافت نشد'
+        })
+
+@login_required
+@require_POST
+def remove_from_wishlist(request, product_id):
+    """حذف محصول از علاقه‌مندی‌ها"""
+    try:
+        deleted_count = Wishlist.objects.filter(
+            user=request.user,
+            product_id=product_id
+        ).delete()[0]
+
+        if deleted_count > 0:
+            return JsonResponse({
+                'success': True,
+                'message': 'محصول از علاقه‌مندی‌ها حذف شد',
+                'action': 'removed'
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'message': 'این محصول در علاقه‌مندی‌ها وجود ندارد'
+            })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': 'خطا در حذف محصول'
+        })
+
+@login_required
+def wishlist_view(request):
+    """صفحه علاقه‌مندی‌های کاربر"""
+    wishlist_items = Wishlist.objects.filter(user=request.user).select_related('product')
+
+    # محاسبه اطلاعات محصولات
+    wishlist_products = []
+    for item in wishlist_items:
+        product = item.product
+        wishlist_products.append({
+            'id': product.id,
+            'title': product.title,
+            'image_url': product.image.url if product.image else '',
+            'brand': product.brand.title,
+            'price': product.price,
+            'final_price': product.get_price_by_discount(),
+            'discount_percentage': product.get_discount_percentage(),
+            'rating': product.avg_rating,
+            'comments_count': product.comments.count(),
+            'url': product.get_absolute_url(),
+            'added_date': item.created_at
+        })
+
+    context = {
+        'wishlist_products': wishlist_products,
+    }
+
+    return render(request, 'product_app/wishlist.html', context)

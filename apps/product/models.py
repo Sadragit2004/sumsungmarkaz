@@ -326,3 +326,17 @@ class MetaTag(models.Model):
             "twitter_description": self.twitter_description or self.description,
             "twitter_image": self.twitter_image_url or default_image,
         }
+
+
+class Wishlist(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="wishlists", verbose_name="کاربر")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="wishlists", verbose_name="محصول")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ افزودن")
+
+    class Meta:
+        verbose_name = "علاقه‌مندی"
+        verbose_name_plural = "علاقه‌مندی‌ها"
+        unique_together = ['user', 'product'] 
+
+    def __str__(self):
+        return f"{self.user} - {self.product}"

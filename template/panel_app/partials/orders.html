@@ -1,0 +1,332 @@
+{% extends "db_template.html" %}
+{% load static %}
+
+{% block content %}
+<!-- منوی موبایل -->
+<div id="mobile-menu" class="z-20 fixed top-0 right-0 w-10/12 md:w-6/12 lg:w-[17%] h-screen bg-white shadow-lg transform translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+    <div class="p-5 flex flex-col gap-y-3 justify-center items-center">
+        <!-- logo -->
+        <div class="flex justify-center">
+            <a href="/">
+                <img src="{{media_url}}image/logo.png" class="max-w-24 md:max-w-28 h-fit" alt="">
+            </a>
+        </div>
+    </div>
+    <ul class="p-5 space-y-1 text-sm text-zinc-800 overflow-y-auto pb-48">
+        <li>
+            <a href="" class="py-3 px-4 hover:bg-gradient-to-l hover:from-zinc-100 hover:to-transparent rounded-lg flex gap-x-2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path class="fill-gray-700" d="M11.25 18C11.25 18.1989 11.329 18.3897 11.4697 18.5303C11.6103 18.671 11.8011 18.75 12 18.75C12.1989 18.75 12.3897 18.671 12.5303 18.5303C12.671 18.3897 12.75 18.1989 12.75 18V15C12.75 14.8011 12.671 14.6103 12.5303 14.4697C12.3897 14.329 12.1989 14.25 12 14.25C11.8011 14.25 11.6103 14.329 11.4697 14.4697C11.329 14.6103 11.25 14.8011 11.25 15V18Z" fill=""/>
+                    <path class="fill-gray-700" fill-rule="evenodd" clip-rule="evenodd" d="M12 1.25C11.292 1.25 10.649 1.453 9.95 1.792C9.276 2.12 8.496 2.604 7.523 3.208L5.456 4.491C4.536 5.063 3.797 5.521 3.229 5.956C2.64 6.406 2.188 6.866 1.861 7.463C1.535 8.058 1.389 8.692 1.318 9.441C1.25 10.166 1.25 11.054 1.25 12.167V13.78C1.25 15.684 1.25 17.187 1.403 18.362C1.559 19.567 1.889 20.54 2.633 21.309C3.38 22.082 4.33 22.428 5.508 22.591C6.648 22.75 8.106 22.75 9.942 22.75H14.058C15.894 22.75 17.352 22.75 18.492 22.591C19.669 22.428 20.62 22.082 21.368 21.309C22.111 20.54 22.441 19.567 22.598 18.362C22.75 17.187 22.75 15.684 22.75 13.78V12.167C22.75 11.054 22.75 10.167 22.682 9.441C22.612 8.691 22.465 8.058 22.139 7.463C21.812 6.866 21.359 6.407 20.771 5.956C20.203 5.52 19.465 5.063 18.544 4.491L16.477 3.208C15.504 2.604 14.724 2.12 14.049 1.792C13.352 1.452 12.709 1.25 12 1.25ZM8.28 4.504C9.295 3.874 10.01 3.432 10.607 3.141C11.188 2.858 11.6 2.75 12 2.75C12.4 2.75 12.812 2.858 13.393 3.141C13.991 3.431 14.705 3.874 15.72 4.504L17.72 5.745C18.681 6.342 19.356 6.761 19.86 7.147C20.349 7.522 20.63 7.831 20.823 8.183C21.016 8.536 21.129 8.949 21.188 9.581C21.249 10.229 21.25 11.046 21.25 12.204V13.725C21.25 15.695 21.248 17.101 21.11 18.168C20.974 19.216 20.717 19.824 20.29 20.267C19.865 20.706 19.287 20.967 18.286 21.106C17.26 21.248 15.907 21.25 14 21.25H10C8.092 21.25 6.74 21.248 5.714 21.106C4.713 20.966 4.135 20.706 3.711 20.266C3.283 19.824 3.026 19.216 2.891 18.168C2.751 17.101 2.75 15.696 2.75 13.725V12.204C2.75 11.046 2.75 10.229 2.812 9.581C2.871 8.949 2.984 8.536 3.177 8.183C3.37 7.831 3.651 7.522 4.141 7.147C4.644 6.761 5.319 6.342 6.28 5.745L8.28 4.504Z" fill=""/>
+                </svg>
+                صفحه اصلی
+            </a>
+        </li>
+        <li>
+            <a href="" class="py-3 px-4 bg-gradient-to-l from-zinc-100 to-transparent rounded-lg flex gap-x-2 text-primary-600">
+                <svg class="fill-primary-600" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256"><path d="M104,216a16,16,0,1,1-16-16A16,16,0,0,1,104,216Zm88-16a16,16,0,1,0,16,16A16,16,0,0,0,192,200ZM239.71,74.14l-25.64,92.28A24.06,24.06,0,0,1,191,184H92.16A24.06,24.06,0,0,1,69,166.42L33.92,40H16a8,8,0,0,1,0-16H40a8,8,0,0,1,7.71,5.86L57.19,64H232a8,8,0,0,1,7.71,10.14ZM221.47,80H61.64l22.81,82.14A8,8,0,0,0,92.16,168H191a8,8,0,0,0,7.71-5.86Z"></path></svg>
+                سفارشات
+            </a>
+        </li>
+        <li>
+            <a href="#" class="py-3 px-4 hover:bg-gradient-to-l hover:from-zinc-100 hover:to-transparent rounded-lg flex gap-x-2">
+                <svg class="fill-gray-700" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256"><path d="M178,40c-20.65,0-38.73,8.88-50,23.89C116.73,48.88,98.65,40,78,40a62.07,62.07,0,0,0-62,62c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,228.66,240,172,240,102A62.07,62.07,0,0,0,178,40ZM128,214.8C109.74,204.16,32,155.69,32,102A46.06,46.06,0,0,1,78,56c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,155.61,146.24,204.15,128,214.8Z"></path></svg>
+                علاقه مندی ها
+            </a>
+        </li>
+        <li>
+            <a href="#" class="py-3 px-4 hover:bg-gradient-to-l hover:from-zinc-100 hover:to-transparent rounded-lg flex gap-x-2">
+                <svg class="fill-gray-700" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256"><path d="M112,80a16,16,0,1,1,16,16A16,16,0,0,1,112,80ZM64,80a64,64,0,0,1,128,0c0,59.95-57.58,93.54-60,94.95a8,8,0,0,1-7.94,0C121.58,173.54,64,140,64,80Zm16,0c0,42.2,35.84,70.21,48,78.5,12.15-8.28,48-36.3,48-78.5a48,48,0,0,0-96,0Zm122.77,67.63a8,8,0,0,0-5.54,15C213.74,168.74,224,176.92,224,184c0,13.36-36.52,32-96,32s-96-18.64-96-32c0-7.08,10.26-15.26,26.77-21.36a8,8,0,0,0-5.54-15C29.22,156.49,16,169.41,16,184c0,31.18,57.71,48,112,48s112-16.82,112-48C240,169.41,226.78,156.49,202.77,147.63Z"></path></svg>
+                آدرس ها
+            </a>
+        </li>
+        <li>
+            <a href="#" class="py-3 px-4 hover:bg-gradient-to-l hover:from-zinc-100 hover:to-transparent rounded-lg flex gap-x-2">
+                <svg class="fill-gray-700" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z"></path></svg>
+                اطلاعات شخصی
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'account:logout' %}" class="py-3 px-4 hover:bg-gradient-to-l hover:from-red-200 text-red-500 hover:text-red-600 hover:to-transparent rounded-lg flex gap-x-2 group">
+                <svg class="fill-gray-700 group-hover:fill-red-600 transition" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256"><path d="M120,216a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V40a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H56V208h56A8,8,0,0,1,120,216Zm109.66-93.66-40-40a8,8,0,0,0-11.32,11.32L204.69,120H112a8,8,0,0,0,0,16h92.69l-26.35,26.34a8,8,0,0,0,11.32,11.32l40-40A8,8,0,0,0,229.66,122.34Z"></path></svg>
+                خروج
+            </a>
+        </li>
+    </ul>
+</div>
+
+<!-- هدر -->
+<header class="bg-white w-full h-14 flex justify-between items-center px-4 shrink-0">
+
+    <div class="flex items-center cursor-pointer group relative hover:bg-zinc-100 transition px-4 py-2 rounded-lg">
+        <span class="flex items-center gap-x-1">
+
+            <span class="text-zinc-600 text-sm">
+                {{ request.user.get_full_name }}
+            </span>
+        </span>
+    </div>
+</header>
+
+<!-- محتوای اصلی -->
+<div class="w-full lg:w-[83%] mr-auto flex flex-col min-h-screen">
+    <main class="p-6 flex-1 overflow-y-auto">
+        <div class="bg-white rounded-2xl min-h-80 h-auto shadow-custom p-4">
+            <!-- فیلترها -->
+            <div class="mb-6 space-y-4">
+                <!-- جستجو -->
+                <div class="flex flex-col md:flex-row gap-4 md:items-center justify-between">
+                    <div class="flex-1 max-w-md">
+                        <div class="relative">
+                            <input type="text"
+                                   id="search-orders"
+                                   placeholder="جستجو در شماره سفارش..."
+                                   value="{{ search_query }}"
+                                   class="w-full pr-10 pl-4 py-2 border border-zinc-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200">
+                            <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- فیلتر وضعیت -->
+                <div class="flex flex-wrap gap-2">
+                    <a href="?status=all{% if search_query %}&search={{ search_query }}{% endif %}"
+                       class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 {% if current_status == 'all' %}bg-primary-500 text-white shadow-lg{% else %}bg-zinc-100 text-zinc-600 hover:bg-zinc-200{% endif %}">
+                        همه سفارشات ({{ orders_stats.all }})
+                    </a>
+                    <a href="?status=pending{% if search_query %}&search={{ search_query }}{% endif %}"
+                       class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 {% if current_status == 'pending' %}bg-blue-500 text-white shadow-lg{% else %}bg-yellow-100 text-yellow-600 hover:bg-yellow-200{% endif %}">
+                        در حال بررسی ({{ orders_stats.pending }})
+                    </a>
+                    <a href="?status=processing{% if search_query %}&search={{ search_query }}{% endif %}"
+                       class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 {% if current_status == 'processing' %}bg-blue-500 text-white shadow-lg{% else %}bg-blue-100 text-blue-600 hover:bg-blue-200{% endif %}">
+                        در حال پردازش ({{ orders_stats.processing }})
+                    </a>
+                    <a href="?status=shipped{% if search_query %}&search={{ search_query }}{% endif %}"
+                       class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 {% if current_status == 'shipped' %}bg-blue-500 text-white shadow-lg{% else %}bg-purple-100 text-purple-600 hover:bg-purple-200{% endif %}">
+                        ارسال شده ({{ orders_stats.shipped }})
+                    </a>
+                    <a href="?status=delivered{% if search_query %}&search={{ search_query }}{% endif %}"
+                       class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 {% if current_status == 'delivered' %}bg-green-500 text-white shadow-lg{% else %}bg-green-100 text-green-600 hover:bg-green-200{% endif %}">
+                        تحویل شده ({{ orders_stats.delivered }})
+                    </a>
+                    <a href="?status=canceled{% if search_query %}&search={{ search_query }}{% endif %}"
+                       class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 {% if current_status == 'canceled' %}bg-red-500 text-white shadow-lg{% else %}bg-red-100 text-red-600 hover:bg-red-200{% endif %}">
+                        لغو شده ({{ orders_stats.canceled }})
+                    </a>
+                </div>
+            </div>
+
+            <!-- جدول سفارشات -->
+            <div class="relative overflow-hidden rounded-xl border border-zinc-200">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right min-w-full">
+                        <thead class="bg-zinc-50 border-b border-zinc-200">
+                            <tr>
+                                <th class="p-4 text-sm font-medium text-zinc-600 whitespace-nowrap">شماره سفارش</th>
+                                <th class="p-4 text-sm font-medium text-zinc-600 whitespace-nowrap">تاریخ ثبت</th>
+                                <th class="p-4 text-sm font-medium text-zinc-600 whitespace-nowrap">تعداد آیتم</th>
+                                <th class="p-4 text-sm font-medium text-zinc-600 whitespace-nowrap">مبلغ کل</th>
+                                <th class="p-4 text-sm font-medium text-zinc-600 whitespace-nowrap">وضعیت</th>
+                                <th class="p-4 text-sm font-medium text-zinc-600 whitespace-nowrap">عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-zinc-100">
+                            {% for order in orders %}
+                            <tr class="hover:bg-zinc-50 transition-colors duration-150">
+                                <td class="p-4 whitespace-nowrap">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center">
+                                            <svg class="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-zinc-900">#{{ order.orderCode|slice:":8" }}</p>
+                                            <p class="text-xs text-zinc-500 mt-1">{{ order.items_count }} کالا</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="p-4 whitespace-nowrap">
+                                    <p class="text-sm text-zinc-900">{{ order.jalali_date }}</p>
+                                </td>
+                                <td class="p-4 whitespace-nowrap">
+                                    <p class="text-sm text-zinc-900">{{ order.items_count }}</p>
+                                </td>
+                                <td class="p-4 whitespace-nowrap">
+                                    <p class="text-sm font-medium text-zinc-900">{{ order.final_price|floatformat:0 }} تومان</p>
+                                </td>
+                                <td class="p-4 whitespace-nowrap">
+                                    {% if order.status == "pending" %}
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
+                                            <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full ml-1"></span>
+                                            در حال بررسی
+                                        </span>
+                                    {% elif order.status == "processing" %}
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                                            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full ml-1"></span>
+                                            در حال پردازش
+                                        </span>
+                                    {% elif order.status == "shipped" %}
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">
+                                            <span class="w-1.5 h-1.5 bg-purple-500 rounded-full ml-1"></span>
+                                            ارسال شده
+                                        </span>
+                                    {% elif order.status == "delivered" %}
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full ml-1"></span>
+                                            تحویل داده شده
+                                        </span>
+                                    {% elif order.status == "canceled" %}
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
+                                            <span class="w-1.5 h-1.5 bg-red-500 rounded-full ml-1"></span>
+                                            لغو شده
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="p-4 whitespace-nowrap">
+                                    <div class="flex items-center gap-2">
+                                        <a href="{% url 'panel:orderdetail' order_code=order.orderCode %}"
+                                           class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors duration-200 border border-primary-200">
+                                            مشاهده
+                                        </a>
+                                        {% if order.status == "pending" %}
+                                        <button class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200 border border-red-200 cancel-order" data-order-id="{{ order.id }}">
+                                            لغو سفارش
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="p-8 text-center">
+                                    <div class="flex flex-col items-center justify-center text-zinc-400">
+                                        <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                                        </svg>
+                                        <p class="text-lg font-medium text-zinc-500 mb-2">سفارشی یافت نشد</p>
+                                        <p class="text-sm text-zinc-400 mb-4">{% if current_status != 'all' or search_query %}با فیلترهای فعلی هیچ سفارشی پیدا نشد{% else %}هنوز هیچ سفارشی ثبت نکرده‌اید{% endif %}</p>
+                                        {% if current_status != 'all' or search_query %}
+                                            <a href="" class="inline-flex items-center px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors duration-200">
+                                                نمایش همه سفارشات
+                                            </a>
+                                        {% else %}
+                                            <a href="{% url 'shop:home' %}" class="inline-flex items-center px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors duration-200">
+                                                شروع خرید
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // منوی موبایل
+    const menuBtn = document.querySelector('.menu-mobile');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    if (menuBtn && mobileMenu) {
+        menuBtn.addEventListener('click', function() {
+            mobileMenu.classList.toggle('translate-x-full');
+        });
+    }
+
+    // جستجوی لحظه‌ای
+    const searchInput = document.getElementById('search-orders');
+    let searchTimeout;
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const searchValue = this.value;
+                const currentUrl = new URL(window.location.href);
+
+                if (searchValue) {
+                    currentUrl.searchParams.set('search', searchValue);
+                } else {
+                    currentUrl.searchParams.delete('search');
+                }
+
+                window.location.href = currentUrl.toString();
+            }, 500);
+        });
+    }
+
+    // لغو سفارش
+    document.querySelectorAll('.cancel-order').forEach(button => {
+        button.addEventListener('click', function() {
+            const orderId = this.getAttribute('data-order-id');
+            const orderElement = this.closest('tr');
+
+            if (confirm('آیا از لغو این سفارش مطمئن هستید؟')) {
+                // نمایش حالت لودینگ
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="w-4 h-4 animate-spin ml-1" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> در حال لغو...';
+                this.disabled = true;
+
+                // ارسال درخواست لغو سفارش
+                fetch(`/panel/order/${orderId}/cancel/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // رفرش صفحه
+                        location.reload();
+                    } else {
+                        alert(data.message || 'خطا در لغو سفارش');
+                        this.innerHTML = originalText;
+                        this.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('خطا در لغو سفارش');
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                });
+            }
+        });
+    });
+});
+</script>
+
+<style>
+    .min-w-full {
+        min-width: 100%;
+    }
+
+    @media (max-width: 768px) {
+        .overflow-x-auto {
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        table {
+            font-size: 0.875rem;
+        }
+
+        .p-4 {
+            padding: 0.75rem;
+        }
+    }
+</style>
+{% endblock %}

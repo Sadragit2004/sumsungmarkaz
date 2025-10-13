@@ -74,6 +74,7 @@ class OrderAdmin(admin.ModelAdmin):
                 'status',
                 'isFinally',
                 'discount',
+                'addressDetail',
             )
         }),
         ('محاسبات مالی', {

@@ -238,17 +238,15 @@ class CreateOrderView(LoginRequiredMixin, View):
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-@login_required
 
 @login_required
 def checkout(request, order_id):
     order = get_object_or_404(Order, id=order_id, customer=request.user)
-
-    # آدرس‌های ثبت‌شده کاربر (برای بررسی انتخاب شهر)
     user_addresses = UserAddress.objects.filter(user=request.user)
 
     if request.method == 'POST':
-        action = request.POST.get('action')  # 'pay' وقتی دکمه پرداخت کلیک بشه
+        action = request.POST.get('action')
+
         # دریافت و تریم فیلدها
         first_name = request.POST.get('first_name', '').strip()
         last_name = request.POST.get('last_name', '').strip()
@@ -267,55 +265,28 @@ def checkout(request, order_id):
 
         if missing:
             messages.warning(request, "لطفاً موارد زیر را کامل کنید: " + "، ".join(missing), extra_tags='warning')
-            # بازگرداندن داده‌هایی که کاربر وارد کرده تا در فرم بماند
-            checkout_data = {
+            return render_checkout_page(request, order, {
                 'first_name': first_name,
                 'last_name': last_name,
                 'phone': phone,
                 'postal_code': postal_code,
                 'address_detail': address_detail,
                 'description': description,
-            }
-            # محاسبات مالیاتی هم آماده کن برای رندر
-            tax_rate = 9
-            tax_amount = (order.getFinalPrice() * tax_rate) // 100
-            final_price_with_tax = order.getFinalPrice() + tax_amount
+            })
 
-            context = {
-                'order': order,
-                'checkout_data': checkout_data,
-                'tax_rate': tax_rate,
-                'tax_amount': tax_amount,
-                'final_price_with_tax': final_price_with_tax,
-            }
-            return render(request, 'order_app/checkout.html', context)
-
-        # بررسی اینکه کاربر حداقل یک آدرس/شهر ثبت کرده باشد
+        # بررسی وجود آدرس کاربر
         if not user_addresses.exists():
             messages.warning(request, "شهر/آدرس برای تحویل ثبت نشده است. لطفاً ابتدا یک آدرس انتخاب یا ثبت کنید.", extra_tags='warning')
-            # مثل بالا، داده‌ها را نگه دار و صفحه را رندر کن تا کاربر بداند
-            checkout_data = {
+            return render_checkout_page(request, order, {
                 'first_name': first_name,
                 'last_name': last_name,
                 'phone': phone,
                 'postal_code': postal_code,
                 'address_detail': address_detail,
                 'description': description,
-            }
-            tax_rate = 9
-            tax_amount = (order.getFinalPrice() * tax_rate) // 100
-            final_price_with_tax = order.getFinalPrice() + tax_amount
+            })
 
-            context = {
-                'order': order,
-                'checkout_data': checkout_data,
-                'tax_rate': tax_rate,
-                'tax_amount': tax_amount,
-                'final_price_with_tax': final_price_with_tax,
-            }
-            return render(request, 'order_app/checkout.html', context)
-
-        # اگر همه‌چیز OK بود، ذخیره در session
+        # ذخیره اطلاعات در session
         request.session['checkout_data'] = {
             'first_name': first_name,
             'last_name': last_name,
@@ -325,17 +296,36 @@ def checkout(request, order_id):
             'description': description,
         }
 
-        # اگر کاربر خواست پرداخت کنه -> برید به ویوی پرداخت (یا به درگاه)
+        # ذخیره آدرس در مدل Order
+        try:
+            order.addressDetail = f"{first_name} {last_name} - تلفن: {phone} - کدپستی: {postal_code} - آدرس: {address_detail}" + (f" - توضیحات: {description}" if description else "")
+            order.save()
+            messages.success(request, "اطلاعات آدرس با موفقیت ذخیره شد.", extra_tags='success')
+        except Exception as e:
+            messages.error(request, f"خطا در ذخیره اطلاعات آدرس: {str(e)}", extra_tags='error')
+            return render_checkout_page(request, order, {
+                'first_name': first_name,
+                'last_name': last_name,
+                'phone': phone,
+                'postal_code': postal_code,
+                'address_detail': address_detail,
+                'description': description,
+            })
+
+        # اگر کاربر دکمه پرداخت را زده باشد
         if action == 'pay':
-            # توجه: ویوی پرداخت (peyment:request) باید خودش هم session و آدرس را چک کند (پایین نمونه آمده)
             return redirect('peyment:request', order_id=order.id)
 
-        # در غیر اینصورت (مثلاً فقط ذخیره اطلاعات) پیام موفقیت بده
-        messages.success(request, "اطلاعات ذخیره شد.", extra_tags='success')
+        # اگر فقط ذخیره اطلاعات بوده
         return redirect('order:checkout', order_id=order.id)
 
-    # GET
+    # GET Request
     checkout_data = request.session.get('checkout_data', {})
+    return render_checkout_page(request, order, checkout_data)
+
+
+def render_checkout_page(request, order, checkout_data):
+    """تابع کمکی برای رندر کردن صفحه چک‌اوت"""
     tax_rate = 9
     tax_amount = (order.getFinalPrice() * tax_rate) // 100
     final_price_with_tax = order.getFinalPrice() + tax_amount

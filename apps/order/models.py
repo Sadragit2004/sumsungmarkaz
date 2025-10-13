@@ -26,6 +26,7 @@ class Order(models.Model):
     )
     registerDate = models.DateTimeField(default=timezone.now, verbose_name="تاریخ ثبت")
     updateDate = models.DateTimeField(auto_now=True, verbose_name="تاریخ ویرایش")
+    addressDetail = models.TextField(verbose_name="آدرس دقیق",null=True,blank=True)
     status = models.CharField(
         max_length=20, choices=STATUS_CHOICES,
         default="pending", verbose_name="وضعیت سفارش"
@@ -78,6 +79,7 @@ class OrderDetail(models.Model):
         Brand, on_delete=models.SET_NULL,
         null=True, blank=True, verbose_name="برند"
     )
+
 
     qty = models.PositiveIntegerField(default=1, verbose_name="تعداد")
     price = models.PositiveIntegerField(verbose_name="قیمت واحد در فاکتور")
